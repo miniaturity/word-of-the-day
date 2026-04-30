@@ -1,5 +1,22 @@
 import { PROPERTIES } from "./data/properties";
 
+export function getRarity(probability: number): Rarity {
+    if (probability <= 0.001) return "extraordinary";
+    if (probability <= 0.1) return "legendary";
+    if (probability <= 3) return "unique";
+    if (probability <= 20) return "uncommon";
+    return "ordinary";
+}
+
+export const RARITY_COLOR: Record<Rarity, string[]> = {
+    "ordinary": ["#bdbdbd", "rgba(184, 184, 184, 0.75)", "#bdbdbd"],
+    "uncommon": ["#6cde52", "#6cde52ad", "#6cde52"],
+    "unique": ["#5273de", "#5b52de", "#8f52de", "#5b52de"],
+    "legendary": ["#deb652"],
+    "extraordinary": ["#de6552"]
+}
+
+
 export class Word {
     private word: string;
     private propertyEngine: WordPropertyEngine;
@@ -9,15 +26,15 @@ export class Word {
         const word = this.generateWord();
         this.word = word;
         this.propertyEngine = new WordPropertyEngine(word, PROPERTIES);
+    
     }
 
     public getProperties(): Property[] {
         return this.propertyEngine.applyProperties();
     }
 
-    
-
     public getWord(): string { return this.word; }
+    public getScore(): number { return this.propertyEngine.score; }
 
     private generateWord(): string {
         let word: string = "";
@@ -51,7 +68,7 @@ export class Word {
 export class WordPropertyEngine {
     constructor(public readonly word: string, private properties: Property[]) {}
 
-    private score: number = 0;
+    public score: number = 0;
 
     applyProperties(): Property[] {
         this.score = 0; // in case it's called twice somehow
@@ -64,15 +81,6 @@ export class WordPropertyEngine {
         }
         return props;
     }
-
-    processWord(): { score: number, props: Property[] } {
-        const props: Property[] = this.applyProperties();
-
-        return {
-            score: this.score,
-            props: props
-        }
-    }
 }
 
 export type Rarity = 
@@ -84,13 +92,17 @@ export type Rarity =
 
 export interface Property {
     applicable: (word: string) => boolean,
-    highlight: (word: string) => number[],
+    highlight: (word: string) => Highlight[],
     name: string, 
     desc: string,
-    rarity: Rarity,
     probability: number,
     score: number,
-    icon?: string,
-    imageIcon?: string, // src
+    icon: string,
+}
+
+export interface Highlight {
+    index: number;
+    borderCol: string;
+    mainCol: string;
 }
 
