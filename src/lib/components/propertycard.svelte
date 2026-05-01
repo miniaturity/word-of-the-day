@@ -10,7 +10,7 @@
         property: Property
     } = $props();
 
-    let highlights = $derived<Highlight[]>(property.highlight(word.getWord()));
+    let highlights = $derived<Record<number, Highlight> | undefined>(property.highlight?.(word.getWord()));
     let rarity = $derived<Rarity>(getRarity(property.probability));
     
 </script>
@@ -33,7 +33,9 @@ style={`--backlight-color: ${RARITY_COLOR[rarity].join(", ")};
 
         <div class="p-letters">
             {#each word.getWord() as letter, i}
-                <div class={`letter`}>
+                <div class={`letter`} style={`
+                ${highlights && highlights[i] ? `background: ${highlights[i].mainCol}` : ""}
+                `}>
                     {letter}
                 </div>
             {/each}
@@ -81,12 +83,13 @@ style={`--backlight-color: ${RARITY_COLOR[rarity].join(", ")};
     @include backlight(".property", var(--backlight-color, red));
     .property {
         --pad: 4px;
+        --width: clamp(200px, 40vw, 600px);
         display: flex;
         flex-direction: column;
-        font-family: "Geist";
+        font-family: "GeistMono";
 
         border: var(--border);
-        width: 400px;
+        width: var(--width);
         background-color: var(--bg-l);
 
         &:hover::before {
@@ -118,6 +121,9 @@ style={`--backlight-color: ${RARITY_COLOR[rarity].join(", ")};
         padding: var(--pad);
     }
 
+    .letter {
+        width: 1ch;
+    }
 
     .pt-rarity {
         --rarity-bg: color-mix(in srgb, var(--rarity-color, red), #fff 70%);

@@ -5,12 +5,20 @@
     import type { Property, Rarity } from "$lib/types";
     import { RARITY_COLOR, Word } from "$lib/types";
 
-    const WORD_GENERATE_TIME = 1000;
+    import { tweened } from 'svelte/motion';
+    import { cubicOut } from 'svelte/easing';
+
+    const WORD_GENERATE_TIME = 8000;
 
     let word = $state<Word>();
     let score = $derived(word?.getScore());
     let properties = $state<Property[]>([]);
     let visibleProperties = $state<Property[]>([]);
+
+    const displayedScore = tweened(0, {
+        duration: 500,
+        easing: cubicOut
+    })
 
     let generated = $state<boolean>(false);
     let generating = $state<boolean>(false);
@@ -19,17 +27,23 @@
     
     // generating anim
     let wordBackdrop = $state<string>("");
+    let backdropAnimating = $state<boolean>(false);
+
     let generatedWord = $state<string>("");
     let generationIndex = $state<number>(0);
 
-    
 
-    
 
     function randomizeBackdrop() {
         if (!word || !generating) return;
-
-
+        backdropAnimating = true;
+        let newBackdrop = "";
+        const alpha = "abcdefghijklmnopqrstuvwxyz"
+        for (let i = 0; i < 8; i++) {
+            newBackdrop += alpha[Math.floor(Math.random() * alpha.length)];
+        }
+        wordBackdrop = newBackdrop;
+        setTimeout(randomizeBackdrop, 150);
     }
 
     async function generateWord() {
@@ -59,6 +73,7 @@
             }
 
             visibleProperties = [properties[i], ...visibleProperties];
+            $displayedScore += properties[i].score;
 
             i++;
             setTimeout(step, 1000); 
@@ -69,6 +84,8 @@
 
     function generateAnim() {
         if (!word) return;
+
+        if (!backdropAnimating) randomizeBackdrop();
 
         if (generationIndex == word.getWord().length) { 
             setTimeout(revealProperties, 1000);
@@ -92,37 +109,46 @@
 </script>
 
 <div class="page" style={`--score-rarity: ${RARITY_COLOR[getWordRarityScore() || "ordinary"][0]}`}>
-    <header>
-        word-of-the-day
-    </header>
+    {#if !generated && !generating}
+        <div class="hero">
+            <header>
+                word-of-the-day
+            </header>
 
-    {#if !generated}
-        <button onclick={generateWord} class="roll">
-            roll
-        </button>
+            <button onclick={generateWord} class="roll">
+                generate
+            </button>
+        </div>
     {/if}
-
+    {#if generating || generated}
     <div class="results">
-        {#if generating || generated}
+        
             <div class="word">
-                {generatedWord} 
+                {#each { length: 8 } as _, i }
+                    {#if generatedWord[i]}
+                        <span class="generated-letter">
+                            {generatedWord[i]}
+                        </span>
+                    {:else}
+                        <span class="bd-letter">
+                            {wordBackdrop[i]}
+                        </span>
+                    {/if}
+                {/each}
             </div>
-        {/if}
-
-        {#if propertiesGenerated}
-            <div class="score">
-                {word?.getScore()} pts
-            </div>
-        {/if}
+        
+        <div class="score" style={`visibility: ${generated ? 'visible' : 'hidden'}`}>
+            {$displayedScore.toFixed(0)} pts
+        </div>
+        
     </div>
+    {/if}
 
     {#if generated}
         <div class="properties">
             {#if word}
-                {#each visibleProperties as prop (prop.name)}
-                    <div animate:flip>
-                        <PropertyCard property={prop} word={word}/>
-                    </div>
+                {#each visibleProperties as prop (prop.id)}
+                    <PropertyCard property={prop} word={word}/>
                 {/each}
             {/if}
         </div>
@@ -187,6 +213,7 @@
 
         display: flex;
         justify-content: center;
+        overflow-x: hidden;
     }
 
     :global(*) {
@@ -201,13 +228,46 @@
         image-rendering: pixelated; 
     }
 
+    @include backlight(".roll");
+    .roll {
+        cursor: pointer;
+        user-select: none;
+        border: var(--border);
+        background-color: var(--bg-l);
+        font-family: "GeistMono";
+        font-size: 1.4rem;
+        width: fit-content;
+        padding: var(--margin);
+    }
+
     .page {
         width: var(--page-width);
         display: flex;
         flex-direction: column;
         align-items: center;
+        justify-content: center;
 
         margin-bottom: var(--margin);
+    }
+
+    .bd-letter {
+        opacity: 0.5;
+        width: 1ch;
+    }
+
+    .hero {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+        align-items: center;
+    }
+
+
+    @include backlight(".word");
+    .word {
+        background-color: var(--bg-l);
+        border: var(--border);
+        padding: var(--margin);
     }
 
     .results {
@@ -217,12 +277,12 @@
         justify-content: center;
         gap: var(--margin);
 
-        height: 25vh;
+        height: 35vh;
     }
 
     header {
         font-family: "GeistPixel";
-        font-size: var(--font-logo);
+        font-size: var(--font-header);
 
         margin-top: calc(var(--margin) * 2);
         width: 100%;
@@ -235,7 +295,7 @@
 
     .word {
         font-size: var(--font-header);
-        font-family: "Geist";
+        font-family: "GeistMono";
         
     }
 
@@ -258,7 +318,7 @@
 
         width: 100%;
         height: 65vh;
-                
+
         -ms-overflow-style: none;
         scrollbar-width: none;
 
@@ -277,6 +337,13 @@
     @font-face {
         font-family: "GeistPixel";
         src: url("$lib/assets/fonts/GeistPixel-Square.ttf") format("truetype");
+        font-weight: normal;
+        font-style: normal;
+    }
+
+    @font-face {
+        font-family: "GeistMono";
+        src: url("$lib/assets/fonts/GeistMono-Regular.ttf") format("truetype");
         font-weight: normal;
         font-style: normal;
     }

@@ -91,8 +91,9 @@ export type Rarity =
     "extraordinary"
 
 export interface Property {
+    id: number;
     applicable: (word: string) => boolean,
-    highlight: (word: string) => Highlight[],
+    highlight?: (word: string) => Record<number, Highlight>,
     name: string, 
     desc: string,
     probability: number,
@@ -101,7 +102,6 @@ export interface Property {
 }
 
 export interface Highlight {
-    index: number;
     borderCol: string;
     mainCol: string;
 }
