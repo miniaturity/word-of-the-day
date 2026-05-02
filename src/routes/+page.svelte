@@ -8,11 +8,13 @@
     import { tweened } from 'svelte/motion';
     import { cubicOut } from 'svelte/easing';
     import Hovercard from "$lib/components/hovercard.svelte";
+    import Holocard from "$lib/components/holocard.svelte";
+    import { HoverTilt } from "hover-tilt";
 
     const WORD_GENERATE_TIME = 8000;
 
     let word = $state<Word>();
-    let score = $derived(word?.getScore());
+    let score = $derived(word?.getScore() || 0);
     let properties = $state<Property[]>([]);
     let visibleProperties = $state<Property[]>([]);
 
@@ -100,8 +102,7 @@
         setTimeout(generateAnim, WORD_GENERATE_TIME / word.getWord().length);
     }
 
-    function getWordRarityScore(): Rarity | undefined {
-        if (!score) return;
+    function getWordRarityScore(): Rarity {
         if (score <= 1000) return "ordinary";
         if (score <= 5000) return "uncommon";
         if (score <= 25000) return "unique";
@@ -113,6 +114,7 @@
 </script>
 
 <div class="page" style={`--score-rarity: ${RARITY_COLOR[getWordRarityScore() || "ordinary"][0]}`}>
+
     {#if !generated && !generating}
         <div class="hero">
             <header>
@@ -128,24 +130,32 @@
     
     <div class="results">
 
-            <Hovercard condition={generated}>
-                <div class="word">
-                    {#each { length: 8 } as _, i }
-                        {#if generatedWord[i]}
-                            <span class="generated-letter">
-                                {generatedWord[i]}
-                            </span>
-                        {:else}
-                            <span class="bd-letter">
-                                {wordBackdrop[i]}
-                            </span>
-                        {/if}
-                    {/each}
-                </div>
-            </Hovercard>
+            <div class="word">
+                {#each { length: 8 } as _, i }
+                    {#if generatedWord[i]}
+                        <span class="generated-letter">
+                            {generatedWord[i]}
+                        </span>
+                    {:else}
+                        <span class="bd-letter">
+                            {wordBackdrop[i]}
+                        </span>
+                    {/if}
+                {/each}
+            </div>
         
-        <div class="score" style={`visibility: ${generated ? 'visible' : 'hidden'}`}>
-            {$displayedScore.toFixed(0)} pts
+        <div class="r-info" style={`visibility: ${generated ? 'visible' : 'hidden'}`}>
+            <div class="ri-rating">
+                <div class="score">
+                    {$displayedScore.toFixed(0)} pts
+                </div>
+
+                {#if propertiesGenerated}
+                    <div class="word-rarity" style={`--rarity-col: ${RARITY_COLOR[getWordRarityScore()][0]}`}>
+                        {getWordRarityScore()}
+                    </div>
+                {/if}
+            </div>
         </div>
         
     </div>
@@ -164,6 +174,7 @@
 
 <style lang="scss"> 
     @use "sass:list";
+    
 
     @property --rotation {
         syntax: "<angle>";
@@ -238,6 +249,7 @@
         image-rendering: pixelated; 
     }
 
+
     @include backlight(".roll");
     .roll {
         cursor: pointer;
@@ -290,6 +302,23 @@
         height: 35vh;
     }
 
+    .ri-rating {
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        gap: var(--margin);
+    }
+
+    .word-rarity {
+        --rarity-bg: color-mix(in srgb, var(--rarity-col, red), #fff 70%);
+        color: var(--rarity-col, red);
+        background-color: var(--rarity-bg);
+        border: 2px solid var(--rarity-col);
+        padding: 4px;
+        font-family: "GeistMono";
+        font-size: 1.3rem;
+    }
+
     header {
         font-family: "GeistPixel";
         font-size: var(--font-header);
@@ -311,7 +340,7 @@
 
     @include backlight(".score", var(--score-rarity));
     .score {
-        font-size: var(--font-regular);
+        font-size: 1.3rem;
         font-family: "GeistPixel";
         padding: 4px;
         border: var(--border);

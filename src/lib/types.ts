@@ -13,7 +13,7 @@ export const RARITY_COLOR: Record<Rarity, string[]> = {
     "uncommon": ["#6cde52", "#6cde52ad", "#6cde52"],
     "unique": ["#5273de", "#5b52de", "#8f52de", "#5b52de"],
     "legendary": ["#deb652"],
-    "extraordinary": ["#de6552"]
+    "extraordinary": ["#de6552", "#de9152", "#f1cb77"]
 }
 
 

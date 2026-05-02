@@ -1,6 +1,8 @@
 <script lang="ts">
     import type { Highlight, Property, Rarity, Word } from "$lib/types";
     import { RARITY_COLOR, getRarity } from "$lib/types";
+    import Holocard from "./holocard.svelte";
+    import Shinycard from "./shinycard.svelte";
 
     let { 
         word,
@@ -13,44 +15,57 @@
     let highlights = $derived<Record<number, Highlight> | undefined>(property.highlight?.(word.getWord()));
     let rarity = $derived<Rarity>(getRarity(property.probability));
     
+    const SHINY: Partial<Record<Rarity, string>> = {
+        ["legendary"]: "https://poke-holo.b-cdn.net/foils/151/birthday-holo-dank-2.webp",
+        ["extraordinary"]: "/images/chfoil.jpg"
+    };
 </script>
 
-<div class={`property`} 
-style={`--backlight-color: ${RARITY_COLOR[rarity].join(", ")};
---rarity-color: ${RARITY_COLOR[rarity][0]}
-`}
+<Holocard condition={SHINY[(getRarity(property.probability))] !== undefined} 
+holoImage={SHINY[(getRarity(property.probability))]}
+extraordinary={getRarity(property.probability) === "extraordinary"}
 >
-    <div class="p-title">
-        <div class="pt-name">
-            <div class="ptn-icon">{property.icon}</div>
-            <div class="ptn-name">{property.name}</div>
-        </div>
-        <div class="pt-rarity">{rarity}</div>
-    </div>
-
-    <div class="p-desc">
-        <div class="pd-desc">{property.desc}</div>
-        <div class="seperator"></div>
-        <div class="pd-lower">
-            <div class="p-letters">
-                {#each word.getWord() as letter, i}
-                    <div class={`letter`} style={`
-                    ${highlights && highlights[i] ? 
-                        `background: ${highlights[i].mainCol || "var(--pts-col)"}; 
-                        border: 1px solid ${highlights[i].borderCol || "var(--pts-col-bor)"} !important; 
-                        color: ${highlights[i].borderCol || "var(--pts-col-bor)"}` : ""}
-                    `}>
-                        {letter}
-                    </div>
-                {/each}
+    <div class={`property`} 
+    style={`--backlight-color: ${RARITY_COLOR[rarity].join(", ")};
+    --rarity-color: ${RARITY_COLOR[rarity][0]}
+    `}
+    >
+        <div class="p-title">
+            <div class="pt-name">
+                <div class="ptn-icon">{property.icon}</div>
+                <div class="ptn-name">{property.name}</div>
+                
             </div>
-
-            <div class="p-pts">
-                +{property.score} pts
+            <div class="pt-rarity">
+                <div class="ptr-prob">{property.probability}%</div>
+                <div class={`ptr-rarity ${rarity === "extraordinary" && "eo"}`}>{rarity}</div>
             </div>
         </div>
+
+        <div class="p-desc">
+            <div class="pd-desc">{property.desc}</div>
+            <div class="seperator"></div>
+            <div class="pd-lower">
+                <div class="p-letters">
+                    {#each word.getWord() as letter, i}
+                        <div class={`letter ${highlights && highlights[i] ? "hl" : ""}`} style={`
+                        ${highlights && highlights[i] ? 
+                            `background: ${highlights[i].mainCol || "var(--pts-col)"}; 
+                            border: 1px solid ${highlights[i].borderCol || "var(--pts-col-bor)"} !important; 
+                            color: ${highlights[i].borderCol || "var(--pts-col-bor)"}` : ""}
+                        `}>
+                            {letter}
+                        </div>
+                    {/each}
+                </div>
+
+                <div class="p-pts">
+                    +{property.score} pts
+                </div>
+            </div>
+        </div>
     </div>
-</div>
+</Holocard>
 
 <style lang="scss">
     @use "sass:list";
@@ -131,6 +146,16 @@ style={`--backlight-color: ${RARITY_COLOR[rarity].join(", ")};
         padding: var(--pad);
     }
 
+    .ptr-prob {
+        --c: #f5df64;
+        --b: #e6a20f;
+        color: var(--b);
+        background-color: var(--c);
+        border: 2px solid var(--b);
+        padding: var(--pad);
+        margin: var(--pad);
+    }
+
     .seperator {
         width: 100%;
         height: 2px;
@@ -140,15 +165,30 @@ style={`--backlight-color: ${RARITY_COLOR[rarity].join(", ")};
     }
   
     .letter {
-        --rarity-bg: color-mix(in srgb, var(--rarity-color, red), #fff 70%);
         width: 2ch;
         padding: 4px;
-        background-color: var(--rarity-bg);
-        border: 1px solid var(--rarity-color);
-        color: color-mix(in srgb, var(--rarity-color, red), #000 20%);;
+        background-color: #d4d4d4;
+        border: 1px solid #aaaaaa;
+        color: #aaaaaa;
+        user-select: none;
+        cursor: pointer;
+    }
+
+    .hl {
+        transition: all 0.3s ease-in-out;
+    }
+
+    .hl:hover {
+        scale: 1.05;
+        box-shadow: 2px 2px 15px 2px rgba(0, 0, 0, 0.3);
     }
 
     .pt-rarity {
+        display: flex;
+        flex-direction: row;
+    }
+
+    .ptr-rarity {
         --rarity-bg: color-mix(in srgb, var(--rarity-color, red), #fff 70%);
         color: var(--rarity-color, red);
         background-color: var(--rarity-bg);
@@ -156,6 +196,7 @@ style={`--backlight-color: ${RARITY_COLOR[rarity].join(", ")};
         margin: var(--pad);
         border: 2px solid var(--rarity-color);
     }
+    
 
     .p-desc {
         display: flex;

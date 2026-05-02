@@ -59,6 +59,26 @@ export const PROPERTIES: Property[] = [
             }
             return highlights;
         }
+    },
+    {
+        id: 2,
+        name: "extra",
+        desc: "extraordinary",
+        probability: 0.0005,
+        icon: "",
+        score: 100000,
+
+        applicable: (word: string) => { return true; }
+    },
+    {
+        id: 3,
+        name: "legendary",
+        desc: "legend",
+        probability: 0.05,
+        icon: "",
+        score: 10000,
+
+        applicable: (word: string) => { return true; }
     }
     
 ]
