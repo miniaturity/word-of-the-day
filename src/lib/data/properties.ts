@@ -13,7 +13,40 @@ export const PROPERTIES: Property[] = [
             return /(.).*\1/i.test(word);
         },
 
-    
+        highlight: (word: string) => {
+            const firstSeen: Record<string, number> = {};
+            let indices: number[] = [];
+
+            for (let i = 0; i < word.length; i++) {
+                const char = word[i];
+
+                if (char in firstSeen) {
+                    const prevIndex = firstSeen[char];
+
+                    indices = [prevIndex, i];
+                    
+                } else {
+                    firstSeen[char] = i;
+                }
+            }
+
+            return {
+                [indices[0]]: {},
+                [indices[1]]: {}
+            }
+        }
+    },
+    {
+        id: 1,
+        name: "vowel",
+        desc: "contains at least one vowel",
+        probability: 81.4,
+        icon: "🌱",
+        score: 100,
+        
+        applicable: (word: string) => {
+            return /[aeiou]/i.test(word);
+        }
     }
     
 ]

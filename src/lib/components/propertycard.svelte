@@ -30,15 +30,24 @@ style={`--backlight-color: ${RARITY_COLOR[rarity].join(", ")};
 
     <div class="p-desc">
         <div class="pd-desc">{property.desc}</div>
+        <div class="seperator"></div>
+        <div class="pd-lower">
+            <div class="p-letters">
+                {#each word.getWord() as letter, i}
+                    <div class={`letter`} style={`
+                    ${highlights && highlights[i] ? 
+                        `background: ${highlights[i].mainCol || "var(--pts-col)"}; 
+                        border: 1px solid ${highlights[i].borderCol || "var(--pts-col-bor)"} !important; 
+                        color: ${highlights[i].borderCol || "var(--pts-col-bor)"}` : ""}
+                    `}>
+                        {letter}
+                    </div>
+                {/each}
+            </div>
 
-        <div class="p-letters">
-            {#each word.getWord() as letter, i}
-                <div class={`letter`} style={`
-                ${highlights && highlights[i] ? `background: ${highlights[i].mainCol}` : ""}
-                `}>
-                    {letter}
-                </div>
-            {/each}
+            <div class="p-pts">
+                +{property.score} pts
+            </div>
         </div>
     </div>
 </div>
@@ -71,7 +80,7 @@ style={`--backlight-color: ${RARITY_COLOR[rarity].join(", ")};
                 filter: blur(20px);
                 opacity: 0.5;
                 position: absolute;
-                inset: -4px;
+                inset: -6px;
                 z-index: -2;
                 animation: rotate 5s linear infinite;
                 transition: all 0.3s ease-in-out;
@@ -83,6 +92,7 @@ style={`--backlight-color: ${RARITY_COLOR[rarity].join(", ")};
     @include backlight(".property", var(--backlight-color, red));
     .property {
         --pad: 4px;
+        --d-pad: 8px;
         --width: clamp(200px, 40vw, 600px);
         display: flex;
         flex-direction: column;
@@ -121,8 +131,21 @@ style={`--backlight-color: ${RARITY_COLOR[rarity].join(", ")};
         padding: var(--pad);
     }
 
+    .seperator {
+        width: 100%;
+        height: 2px;
+        background-color: color-mix(in srgb, var(--bg-l, red), #000000 15%);
+        margin: var(--pad);
+        align-self: center;
+    }
+  
     .letter {
-        width: 1ch;
+        --rarity-bg: color-mix(in srgb, var(--rarity-color, red), #fff 70%);
+        width: 2ch;
+        padding: 4px;
+        background-color: var(--rarity-bg);
+        border: 1px solid var(--rarity-color);
+        color: color-mix(in srgb, var(--rarity-color, red), #000 20%);;
     }
 
     .pt-rarity {
@@ -135,13 +158,32 @@ style={`--backlight-color: ${RARITY_COLOR[rarity].join(", ")};
     }
 
     .p-desc {
+        display: flex;
+        flex-direction: column;
+        gap: var(--pad);
         padding: var(--pad);
     }
-
     .p-letters {
         display: flex;
         flex-direction: row;
-
+        gap: 4px;
     }
 
+    .pd-desc {
+        margin: var(--pad) var(--pad) 0 var(--pad);
+    }
+
+    .pd-lower {
+        display: flex;
+        flex-direction: row;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .p-pts {
+        color: var(--pts-col-bor);
+        padding: var(--pad);
+        border: 1px solid var(--pts-col-bor);
+        background: var(--pts-col);
+    }
 </style>

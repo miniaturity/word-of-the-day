@@ -7,6 +7,7 @@
 
     import { tweened } from 'svelte/motion';
     import { cubicOut } from 'svelte/easing';
+    import Hovercard from "$lib/components/hovercard.svelte";
 
     const WORD_GENERATE_TIME = 8000;
 
@@ -101,7 +102,10 @@
 
     function getWordRarityScore(): Rarity | undefined {
         if (!score) return;
-        if (score <= 500) return "ordinary";
+        if (score <= 1000) return "ordinary";
+        if (score <= 5000) return "uncommon";
+        if (score <= 25000) return "unique";
+        if (score <= 500000) return "legendary";
         
         return "extraordinary";
     }
@@ -121,21 +125,24 @@
         </div>
     {/if}
     {#if generating || generated}
+    
     <div class="results">
-        
-            <div class="word">
-                {#each { length: 8 } as _, i }
-                    {#if generatedWord[i]}
-                        <span class="generated-letter">
-                            {generatedWord[i]}
-                        </span>
-                    {:else}
-                        <span class="bd-letter">
-                            {wordBackdrop[i]}
-                        </span>
-                    {/if}
-                {/each}
-            </div>
+
+            <Hovercard condition={generated}>
+                <div class="word">
+                    {#each { length: 8 } as _, i }
+                        {#if generatedWord[i]}
+                            <span class="generated-letter">
+                                {generatedWord[i]}
+                            </span>
+                        {:else}
+                            <span class="bd-letter">
+                                {wordBackdrop[i]}
+                            </span>
+                        {/if}
+                    {/each}
+                </div>
+            </Hovercard>
         
         <div class="score" style={`visibility: ${generated ? 'visible' : 'hidden'}`}>
             {$displayedScore.toFixed(0)} pts
@@ -145,7 +152,7 @@
     {/if}
 
     {#if generated}
-        <div class="properties">
+        <div class="properties" class:show={generated}>
             {#if word}
                 {#each visibleProperties as prop (prop.id)}
                     <PropertyCard property={prop} word={word}/>
@@ -197,6 +204,9 @@
         --bg-l: color-mix(in srgb, var(--bg), #fff 80%);
         --border-col: #1e1e1e;
         --border: 2px solid var(--border-col);
+
+        --pts-col: #52fdbb;
+        --pts-col-bor: #02b671;
 
         --page-width: clamp(300px, 100vw, 800px);
         --font-logo: clamp(36px, 5vw, 100px);
@@ -317,13 +327,23 @@
         gap: calc(var(--margin) * 2);
 
         width: 100%;
-        height: 65vh;
+        height: 0;
 
         -ms-overflow-style: none;
         scrollbar-width: none;
 
         &::-webkit-scrollbar {
             display: none;
+        }
+
+        animation: expand ease-in-out 0.7s forwards;
+    }
+
+    @keyframes expand {
+        from {
+            height: 0;
+        } to {
+            height: 65vh;
         }
     }
 

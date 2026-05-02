@@ -102,7 +102,7 @@ export interface Property {
 }
 
 export interface Highlight {
-    borderCol: string;
-    mainCol: string;
+    borderCol?: string;
+    mainCol?: string;
 }
 
