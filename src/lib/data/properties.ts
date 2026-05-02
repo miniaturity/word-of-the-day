@@ -1,4 +1,5 @@
 import type { Property } from "$lib/types";
+import type { Highlight } from "$lib/types";
 
 export const PROPERTIES: Property[] = [
     {
@@ -46,6 +47,17 @@ export const PROPERTIES: Property[] = [
         
         applicable: (word: string) => {
             return /[aeiou]/i.test(word);
+        },
+
+        highlight: (word: string) => {
+            const vowels = "aeiou";
+            const highlights: Record<number, Highlight> = {};
+            for (let i = 0; i < word.length; i++) {
+                if (vowels.includes(word[i])) {
+                    highlights[i] = {};
+                }
+            }
+            return highlights;
         }
     }
     

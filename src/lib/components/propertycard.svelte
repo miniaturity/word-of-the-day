@@ -186,4 +186,12 @@ style={`--backlight-color: ${RARITY_COLOR[rarity].join(", ")};
         border: 1px solid var(--pts-col-bor);
         background: var(--pts-col);
     }
+
+    @keyframes in {
+        from {
+            scale: 0.9;
+        } to {
+            scale: 1;
+        }
+    }
 </style>
