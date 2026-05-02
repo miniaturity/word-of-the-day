@@ -41,7 +41,7 @@ export const PROPERTIES: Property[] = [
         id: 1,
         name: "vowel",
         desc: "contains at least one vowel",
-        probability: 81.4,
+        probability: 86.6,
         icon: "🌱",
         score: 100,
         
@@ -62,23 +62,50 @@ export const PROPERTIES: Property[] = [
     },
     {
         id: 2,
-        name: "extra",
-        desc: "extraordinary",
-        probability: 0.0005,
-        icon: "",
-        score: 100000,
+        name: "consonant",
+        desc: "contains at least one consonant",
+        probability: 99,
+        icon: "🪢",
+        score: 50,
 
-        applicable: (word: string) => { return true; }
+        applicable: (word: string) => {
+            return /[bcdfghjklmnpqrstvwxyz]/i.test(word);
+        },
+
+        highlight: (word: string) => {
+            const consonants = "bcdfghjklmnpqrstvwxyz";
+            const highlights: Record<number, Highlight> = {};
+            for (let i = 0; i < word.length; i++) {
+                if (consonants.includes(word[i])) {
+                    highlights[i] = {};
+                }
+            }
+            return highlights;
+        }
     },
     {
         id: 3,
-        name: "legendary",
-        desc: "legend",
-        probability: 0.05,
-        icon: "",
-        score: 10000,
+        name: "vowelless",
+        desc: "does not contain any vowels",
+        probability: 13.6,
+        icon: "🔇",
+        score: 2400,
 
-        applicable: (word: string) => { return true; }
+        applicable: (word: string) => {
+            return /^[^aeiou]*$/i.test(word);
+        }
+    },
+    {
+        id: 4,
+        name: "consonantless",
+        desc: "does not contain any consonants",
+        probability: 0.000001,
+        icon: "💎",
+        score: 15000000,
+
+        applicable: (word: string) => {
+            return /^[^bcdfghjklmnpqrstvwxyz]*$/i.test(word);
+        }
     }
     
 ]

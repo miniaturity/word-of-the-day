@@ -23,7 +23,7 @@
 
 <Holocard condition={SHINY[(getRarity(property.probability))] !== undefined} 
 holoImage={SHINY[(getRarity(property.probability))]}
-extraordinary={getRarity(property.probability) === "extraordinary"}
+extraordinary={rarity=== "extraordinary"}
 >
     <div class={`property`} 
     style={`--backlight-color: ${RARITY_COLOR[rarity].join(", ")};
@@ -38,7 +38,7 @@ extraordinary={getRarity(property.probability) === "extraordinary"}
             </div>
             <div class="pt-rarity">
                 <div class="ptr-prob">{property.probability}%</div>
-                <div class={`ptr-rarity ${rarity === "extraordinary" && "eo"}`}>{rarity}</div>
+                <div class={`${rarity === "extraordinary" && "eo"} ptr-rarity`}>{rarity}</div>
             </div>
         </div>
 
@@ -96,7 +96,7 @@ extraordinary={getRarity(property.probability) === "extraordinary"}
                 opacity: 0.5;
                 position: absolute;
                 inset: -6px;
-                z-index: -2;
+                z-index: -1;
                 animation: rotate 5s linear infinite;
                 transition: all 0.3s ease-in-out;
             }
@@ -195,6 +195,11 @@ extraordinary={getRarity(property.probability) === "extraordinary"}
         padding: var(--pad);
         margin: var(--pad);
         border: 2px solid var(--rarity-color);
+
+        transition: all ease-in-out 0.3s;
+        &:hover {
+            scale: 1.04;
+        }
     }
     
 
@@ -228,6 +233,7 @@ extraordinary={getRarity(property.probability) === "extraordinary"}
         background: var(--pts-col);
     }
 
+
     @keyframes in {
         from {
             scale: 0.9;
@@ -235,4 +241,6 @@ extraordinary={getRarity(property.probability) === "extraordinary"}
             scale: 1;
         }
     }
+
+    
 </style>

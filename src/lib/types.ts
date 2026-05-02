@@ -23,7 +23,7 @@ export class Word {
     private readonly WORD_LENGTH_LIMIT: number = 8;
 
     constructor() {
-        const word = this.generateWord();
+        const word = "uuuuuuuu";
         this.word = word;
         this.propertyEngine = new WordPropertyEngine(word, PROPERTIES);
     

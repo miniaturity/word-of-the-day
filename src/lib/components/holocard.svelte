@@ -18,10 +18,10 @@
 {#if condition && children}
     <HoverTilt 
     springOptions={{ stiffness: 0.3 }} 
-    glareIntensity={0.5}
-
+    glareIntensity={1}
+    glareHue={extraordinary ? 360 : undefined}
     shadow
-    class={`${extraordinary ? "extr" : "ex-holo"}`}
+    class={`${extraordinary === true ? "extr" : "ex-holo"}`}
     style={`${holoImage && `--h: url(${holoImage});`}`}
     >
         {@render children()}
@@ -30,7 +30,7 @@
 
     <HoverTilt
         springOptions={{ stiffness: 0.3 }} 
-        glareIntensity={0.5}
+        glareIntensity={extraordinary ? 1.5 : 0.5}
         shadow
     >
         {@render children()}
@@ -76,7 +76,7 @@
         background-position: center, var(--sparkles-offset), center;
         background-repeat: no-repeat, repeat, no-repeat;
         background-blend-mode: color-burn;
-        mix-blend-mode: screen;
+        mix-blend-mode: color-dodge;
         will-change: background-image, opacity;
         pointer-events: none;
     }

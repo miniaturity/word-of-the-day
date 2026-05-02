@@ -1,5 +1,4 @@
 <script lang="ts">
-    import { flip } from "svelte/animate";
     import { tick } from "svelte";
     import PropertyCard from "$lib/components/propertycard.svelte";
     import type { Property, Rarity } from "$lib/types";
@@ -7,9 +6,6 @@
 
     import { tweened } from 'svelte/motion';
     import { cubicOut } from 'svelte/easing';
-    import Hovercard from "$lib/components/hovercard.svelte";
-    import Holocard from "$lib/components/holocard.svelte";
-    import { HoverTilt } from "hover-tilt";
 
     const WORD_GENERATE_TIME = 8000;
 
@@ -151,11 +147,14 @@
                 </div>
 
                 {#if propertiesGenerated}
+                    <div class="ri-seperator"></div>
                     <div class="word-rarity" style={`--rarity-col: ${RARITY_COLOR[getWordRarityScore()][0]}`}>
                         {getWordRarityScore()}
                     </div>
                 {/if}
             </div>
+
+
         </div>
         
     </div>
@@ -249,7 +248,6 @@
         image-rendering: pixelated; 
     }
 
-
     @include backlight(".roll");
     .roll {
         cursor: pointer;
@@ -275,6 +273,17 @@
     .bd-letter {
         opacity: 0.5;
         width: 1ch;
+    }
+
+    .r-info {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .ri-seperator {
+        width: 5px;
+        height: 5px;
+        background-color: var(--border-col);
     }
 
     .hero {
