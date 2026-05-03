@@ -89,7 +89,7 @@ export const PROPERTIES: Property[] = [
         desc: "does not contain any vowels",
         probability: 13.6,
         icon: "🔇",
-        score: 2400,
+        score: 2408,
 
         applicable: (word: string) => {
             return /^[^aeiou]*$/i.test(word);
@@ -101,10 +101,76 @@ export const PROPERTIES: Property[] = [
         desc: "does not contain any consonants",
         probability: 0.000001,
         icon: "💎",
-        score: 15000000,
+        score: 15333333,
 
         applicable: (word: string) => {
             return /^[^bcdfghjklmnpqrstvwxyz]*$/i.test(word);
+        }
+    },
+    {
+        id: 5,
+        name: "furry",
+        desc: "contains a popular fursona type as a substring",
+        probability: 0.000031,
+        icon: "🐲",
+        score: 1464200,
+        
+        applicable: (word: string) => {
+            const furries = [
+                "dragon",
+                "feline",
+                "canine",
+                "rodent",
+                "avian",
+                "aquatic",
+                "dinosaur",
+                "pokemon",
+                "big cat",
+                "awwkitty"
+            ]
+
+            for (const fur of furries) {
+                if (word.includes(fur)) return true;
+            }
+
+            return false;
+        },
+
+        highlight: (word: string) => {
+            const highlights: Record<number, Highlight> = {};
+
+            const furries = [
+                "dragon",
+                "feline",
+                "canine",
+                "rodent",
+                "avian",
+                "aquatic",
+                "dinosaur",
+                "pokemon",
+                "big cat",
+                "awwkitty"
+            ]
+
+            let furry: string = "dragon";
+            let wordRef: string = word;
+
+            for (const fur of furries) {
+                if (word.includes(fur)) {
+                    furry = fur;
+                }
+            }
+
+            const replaceAt = (str: string, index: number, replacement: string): string => {
+                return str.substring(0, index) + replacement + str.substring(index + 1);
+            }
+
+            for (let i = 0; i < furry.length; i++) {
+                highlights[wordRef.indexOf(furry[i])] = {};
+                wordRef = replaceAt(wordRef, i, '_');
+            }
+
+            return highlights;
         }
     }
     

@@ -70,7 +70,7 @@
         border-radius: inherit;
         background-image:
         var(--sparkle-rainbow-gradient),
-        var(--sparkles-image),
+        var(--h),
         var(--hover-tilt-default-gradient);
         background-size: 120% 160%, cover;
         background-position: center, var(--sparkles-offset), center;
@@ -80,5 +80,5 @@
         will-change: background-image, opacity;
         pointer-events: none;
     }
-
+    
 </style>

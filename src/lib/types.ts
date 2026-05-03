@@ -1,3 +1,4 @@
+import { fetchWord } from "./data/fetchWord";
 import { PROPERTIES } from "./data/properties";
 
 export function getRarity(probability: number): Rarity {
@@ -19,13 +20,15 @@ export const RARITY_COLOR: Record<Rarity, string[]> = {
 
 export class Word {
     private word: string;
+    private def: string;
     private propertyEngine: WordPropertyEngine;
     private readonly WORD_LENGTH_LIMIT: number = 8;
 
     constructor() {
-        const word = "uuuuuuuu";
-        this.word = word;
-        this.propertyEngine = new WordPropertyEngine(word, PROPERTIES);
+        const word = fetchWord();
+        this.word = word.word;
+        this.def = word.definition;
+        this.propertyEngine = new WordPropertyEngine(this.word, PROPERTIES);
     
     }
 
@@ -33,6 +36,7 @@ export class Word {
         return this.propertyEngine.applyProperties();
     }
 
+    public getDef(): string { return this.def; }
     public getWord(): string { return this.word; }
     public getScore(): number { return this.propertyEngine.score; }
 
