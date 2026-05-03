@@ -36,4 +36,4 @@ function getProbability(rule: (word: string) => boolean): void {
     console.log("PROBABILITY: " + (success / entryCount * 100));
 }
 
-getProbability((word: string) => word.length > 12)
+getProbability((word: string) => word.endsWith("ism"))

@@ -9,7 +9,7 @@
 
     const WORD_GENERATE_TIME = 5000;
 
-    let word = $state<Word>();
+    let word = $state<Word>(new Word());
     let score = $derived(word?.getScore() || 0);
     let properties = $state<Property[]>([]);
     let visibleProperties = $state<Property[]>([]);
@@ -49,7 +49,7 @@
         if (generated) return;
 
         try {
-            word = await new Word().init();
+            await word.init();
         } catch (e) {
             console.log("Error generating word: " + e);
             return;
@@ -103,18 +103,10 @@
         setTimeout(generateAnim, WORD_GENERATE_TIME / word.getWord().length);
     }
 
-    function getWordRarityScore(): Rarity {
-        if (score <= 1000) return "ordinary";
-        if (score <= 5000) return "uncommon";
-        if (score <= 25000) return "unique";
-        if (score <= 500000) return "legendary";
-        
-        return "extraordinary";
-    }
 
 </script>
 
-<div class="page" style={`--score-rarity: ${RARITY_COLOR[getWordRarityScore() || "ordinary"][0]}`}>
+<div class="page" style={`--score-rarity: ${RARITY_COLOR[word.getRarity() || "ordinary"][0]}`}>
 
     {#if !generated && !generating}
         <div class="hero">
@@ -132,7 +124,7 @@
     <div class="results">
 
             <div class="word">
-                {#each { length: 8 } as _, i }
+                {#each word?.getWord() ?? [] as _, i }
                     {#if generatedWord[i]}
                         <span class="generated-letter">
                             {generatedWord[i]}
@@ -153,8 +145,8 @@
 
                 {#if propertiesGenerated}
                     <div class="ri-seperator"></div>
-                    <div class="word-rarity" style={`--rarity-col: ${RARITY_COLOR[getWordRarityScore()][0]}`}>
-                        {getWordRarityScore()}
+                    <div class="word-rarity" style={`--rarity-col: ${RARITY_COLOR[word.getRarity()][0]}`}>
+                        {word.getRarity()}
                     </div>
                 {/if}
             </div>

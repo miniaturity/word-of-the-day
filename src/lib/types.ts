@@ -4,8 +4,8 @@ import { PROPERTIES } from "./data/properties";
 export function getRarity(probability: number): Rarity {
     if (probability <= 0.001) return "extraordinary";
     if (probability <= 0.1) return "legendary";
-    if (probability <= 3) return "unique";
-    if (probability <= 20) return "uncommon";
+    if (probability <= 10) return "unique";
+    if (probability <= 33) return "uncommon";
     return "ordinary";
 }
 
@@ -28,23 +28,36 @@ export class Word {
     private word!: string;
     private def!: string;
     private propertyEngine!: WordPropertyEngine;
+    private rarity!: Rarity;
+    private properties!: Property[];
 
     public async init(): Promise<Word> {
         const word = await fetchWord();
         this.word = word.word.toLowerCase();
         this.def = word.definition;
         this.propertyEngine = new WordPropertyEngine(this.word, PROPERTIES);
+        this.properties = this.propertyEngine.applyProperties();
+        this.rarity = this.getWordRarityScore(this.propertyEngine.score);
         return this;
     }
 
     public getProperties(): Property[] {
-        return this.propertyEngine.applyProperties();
+        return this.properties;
     }
 
     public getDef(): string { return this.def; }
     public getWord(): string { return this.word; }
     public getScore(): number { return this.propertyEngine.score; }
+    public getRarity(): Rarity { return this.rarity; }
 
+    private getWordRarityScore(score: number): Rarity {
+        if (score <= 1000) return "ordinary";
+        if (score <= 10000) return "uncommon";
+        if (score <= 100000) return "unique";
+        if (score <= 500000) return "legendary";
+        
+        return "extraordinary";
+    }
 }
 
 export class WordPropertyEngine {
@@ -81,9 +94,6 @@ export interface Property {
     probability: number,
     score: number,
     icon: string,
-
-    nextProperty?: number // id
-    subProperties?: Property[]
 }
 
 export interface Highlight {
