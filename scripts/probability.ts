@@ -30,10 +30,10 @@ function getProbability(rule: (word: string) => boolean): void {
 
     for (let i = 0; i < entryCount; i++) {
         const entry = readEntry(i);
-        if (rule(entry.word)) success++;
+        if (rule(entry.word.toLowerCase())) success++;
     }
 
     console.log("PROBABILITY: " + (success / entryCount * 100));
 }
 
-getProbability((word: string) => word.endsWith("ism"))
+getProbability((word: string) => word === "trustworthy");

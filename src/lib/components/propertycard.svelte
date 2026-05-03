@@ -1,8 +1,7 @@
 <script lang="ts">
     import type { Highlight, Property, Rarity, Word } from "$lib/types";
     import { RARITY_COLOR, getRarity } from "$lib/types";
-    import Holocard from "./holocard.svelte";
-    import Shinycard from "./shinycard.svelte";
+    import Holocard from "./holoproperty.svelte";
 
     let { 
         word,

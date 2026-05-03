@@ -26,18 +26,35 @@ export interface DictionaryWord {
 export class Word {
     // typescript i promise i will init these before using i promise pinky promise yes
     private word!: string;
-    private def!: string;
     private propertyEngine!: WordPropertyEngine;
     private rarity!: Rarity;
     private properties!: Property[];
+    private initialized!: boolean;
+    private color!: string;
 
-    public async init(): Promise<Word> {
-        const word = await fetchWord();
-        this.word = word.word.toLowerCase();
-        this.def = word.definition;
+    constructor(word?: string, color?: string) {
+        if (!word) return;
+        if (color) this.color = color;
+        else this.color = this.generateColor();
+        
+        this.word = word.toLowerCase();
         this.propertyEngine = new WordPropertyEngine(this.word, PROPERTIES);
         this.properties = this.propertyEngine.applyProperties();
         this.rarity = this.getWordRarityScore(this.propertyEngine.score);
+
+        this.initialized = true;
+    }
+
+    public async init(): Promise<Word> {
+        if (this.initialized) return this;
+
+        const word = await fetchWord();
+        this.color = this.generateColor();
+        this.word = word.word.toLowerCase();
+        this.propertyEngine = new WordPropertyEngine(this.word, PROPERTIES);
+        this.properties = this.propertyEngine.applyProperties();
+        this.rarity = this.getWordRarityScore(this.propertyEngine.score);
+        
         return this;
     }
 
@@ -45,19 +62,25 @@ export class Word {
         return this.properties;
     }
 
-    public getDef(): string { return this.def; }
     public getWord(): string { return this.word; }
     public getScore(): number { return this.propertyEngine.score; }
     public getRarity(): Rarity { return this.rarity; }
+    public getColor(): string { return this.color; }
 
     private getWordRarityScore(score: number): Rarity {
         if (score <= 1000) return "ordinary";
         if (score <= 10000) return "uncommon";
         if (score <= 100000) return "unique";
-        if (score <= 500000) return "legendary";
+        if (score <= 250000) return "legendary";
         
         return "extraordinary";
     }
+    
+    private generateColor(): string {
+        const ra = Math.floor(Math.random() * 16777215).toString(16);
+        return `#${ra.padStart(6, '0')}`;
+    }
+    
 }
 
 export class WordPropertyEngine {

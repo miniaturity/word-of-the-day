@@ -87,7 +87,7 @@ export const PROPERTIES: Property[] = [
         id: 3,
         name: "vowelless",
         desc: "does not contain any vowels",
-        probability: .12,
+        probability: 0.18,
         icon: "🔇",
         score: 50000,
 
@@ -112,7 +112,7 @@ export const PROPERTIES: Property[] = [
         id: 5,
         name: "furry",
         desc: "contains a popular fursona type as a substring",
-        probability: 0.014,
+        probability: 0.033,
         icon: "🐲",
         score: 264000,
         
@@ -206,7 +206,7 @@ export const PROPERTIES: Property[] = [
         id: 9,
         name: "elemental",
         desc: "contains an element's symbol (longer than 1 character) as a substring",
-        probability: 89,
+        probability: 92,
         icon: "🧪",
         score: 250,
         
@@ -320,7 +320,7 @@ export const PROPERTIES: Property[] = [
         id: 13,
         name: "marks the spot",
         desc: "contains the character x",
-        probability: 2.3,
+        probability: 2.4,
         icon: "❎",
         score: 14444,
 
@@ -339,11 +339,11 @@ export const PROPERTIES: Property[] = [
         id: 14,
         name: "threepeat",
         desc: "contains three of the same character",
-        probability: 10,
+        probability: 13.3,
         icon: "👩‍👧‍👦",
-        score: 5903,
+        score: 6333,
 
-        applicable: (word: string) => /([a-zA-Z])(?=(?:.*?\1){2})/.test(word),
+        applicable: (word: string) => /([a-z])(?=(?:.*?\1){2})/.test(word),
 
        highlight: (word: string) => {
             const seen: Record<string, number[]> = {};
@@ -375,7 +375,7 @@ export const PROPERTIES: Property[] = [
         id: 15,
         name: "queue",
         desc: "contains the character q",
-        probability: 1,
+        probability: 1.6,
         icon: "⁉️",
         score: 32000,
 
@@ -414,9 +414,9 @@ export const PROPERTIES: Property[] = [
         id: 17,
         name: "heavy",
         desc: "the sum of the indices of each character in the alphabet is greater than 100",
-        probability: 28,
+        probability: 18.2,
         icon: "🪨",
-        score: 2100,
+        score: 9090,
 
         applicable: (word: string) => {
             let total: number = 0;
@@ -429,16 +429,16 @@ export const PROPERTIES: Property[] = [
                 }
             }
 
-            return total > 100;
+            return total > 125;
         }
     },
     {
         id: 18,
         name: "light",
         desc: "the sum of the indices of each character in the alphabet is less than 30",
-        probability: 6,
+        probability: 2,
         icon: "🪶",
-        score: 8030,
+        score: 10030,
 
         applicable: (word: string) => {
             let total: number = 0;
@@ -458,7 +458,7 @@ export const PROPERTIES: Property[] = [
         id: 19,
         name: "heavy (roman)",
         desc: "the sum of all the roman numerals in the word is greater than 10000",
-        probability: 13,
+        probability: 18.67,
         icon: "🏦",
         score: 4700,
 
@@ -509,7 +509,7 @@ export const PROPERTIES: Property[] = [
         name: "3.14159265359..",
         desc: "contains the substring pi",
         icon: "🥧",
-        probability: 1.8,
+        probability: 2.4,
         score: 31415,
 
         applicable: (word: string) => word.includes("pi"),
@@ -535,6 +535,100 @@ export const PROPERTIES: Property[] = [
             [word[word.length - 2]]: {},
             [word[word.length - 3]]: {}
         })
+    },
+    {
+        id:  22,
+        name: "even",
+        desc: "contains an even amount of letters",
+        icon: "✌️",
+        probability: 50.6,
+        score: 49,
+
+        applicable: (word: string) => word.length % 2 === 0,
+    },
+    {
+        id: 23,
+        name: "odd",
+        desc: "contains an odd amount of letters",
+        icon: "☝️",
+        probability: 49.4,
+        score: 51,
+
+        applicable: (word: string) => word.length % 2 === 1,
+    },
+    {
+        id: 24,
+        name: "typescript",
+        desc: "is a typescript keyword",
+        icon: "🧑‍💻",
+        probability: 0.2,
+        score: 177000,
+
+        applicable: (word: string) => {
+            const KEYWORDS: string[] = [
+                "break",
+                "case",
+                "catch",
+                "class",
+                "const",
+                "continue",
+                "debugger",
+                "default",
+                "delete",
+                "do",
+                "else",
+                "enum",
+                "export",
+                "extends",
+                "false",
+                "finally",
+                "for",
+                "function",
+                "if",
+                "import",
+                "in",
+                "instanceof",
+                "new",
+                "null",
+                "return",
+                "super",
+                "switch",
+                "this",
+                "throw",
+                "true",
+                "try",
+                "typeof",
+                "var",
+                "void",
+                "while",
+                "with",
+                "as",
+                "implements",
+                "interface",
+                "let",
+                "package",
+                "private",
+                "protected",
+                "public",
+                "static",
+                "yield",
+                "any",
+                "boolean",
+                "constructor",
+                "declare",
+                "get",
+                "module",
+                "require",
+                "number",
+                "set",
+                "string",
+                "symbol",
+                "type",
+                "from",
+            ]
+
+            return KEYWORDS.includes(word);
+        }
     }
     
 ]
