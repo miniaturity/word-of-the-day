@@ -7,7 +7,7 @@
     import { tweened } from 'svelte/motion';
     import { cubicOut } from 'svelte/easing';
 
-    const WORD_GENERATE_TIME = 8000;
+    const WORD_GENERATE_TIME = 5000;
 
     let word = $state<Word>();
     let score = $derived(word?.getScore() || 0);
@@ -38,7 +38,7 @@
         backdropAnimating = true;
         let newBackdrop = "";
         const alpha = "abcdefghijklmnopqrstuvwxyz"
-        for (let i = 0; i < 8; i++) {
+        for (let i = 0; i < word.getWord().length; i++) {
             newBackdrop += alpha[Math.floor(Math.random() * alpha.length)];
         }
         wordBackdrop = newBackdrop;
@@ -48,7 +48,12 @@
     async function generateWord() {
         if (generated) return;
 
-        word = new Word();
+        try {
+            word = await new Word().init();
+        } catch (e) {
+            console.log("Error generating word: " + e);
+            return;
+        }
 
         const props = word.getProperties();
 

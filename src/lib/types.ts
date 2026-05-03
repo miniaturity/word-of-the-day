@@ -17,19 +17,24 @@ export const RARITY_COLOR: Record<Rarity, string[]> = {
     "extraordinary": ["#de6552", "#de9152", "#f1cb77"]
 }
 
+export interface DictionaryWord {
+    word: string;
+    pos: string;
+    definition: string;
+}
 
 export class Word {
-    private word: string;
-    private def: string;
-    private propertyEngine: WordPropertyEngine;
-    private readonly WORD_LENGTH_LIMIT: number = 8;
+    // typescript i promise i will init these before using i promise pinky promise yes
+    private word!: string;
+    private def!: string;
+    private propertyEngine!: WordPropertyEngine;
 
-    constructor() {
-        const word = fetchWord();
-        this.word = word.word;
+    public async init(): Promise<Word> {
+        const word = await fetchWord();
+        this.word = word.word.toLowerCase();
         this.def = word.definition;
         this.propertyEngine = new WordPropertyEngine(this.word, PROPERTIES);
-    
+        return this;
     }
 
     public getProperties(): Property[] {
@@ -40,33 +45,6 @@ export class Word {
     public getWord(): string { return this.word; }
     public getScore(): number { return this.propertyEngine.score; }
 
-    private generateWord(): string {
-        let word: string = "";
-        let alpha: string = "abcdefghijklmnopqrstuvwxyz ";
-
-        for (let i = 0; i < this.WORD_LENGTH_LIMIT; i++) {
-            const letter: string = alpha[this.getSecureRandomInt(0, alpha.length - 1)];
-            word += letter;
-        }
-
-        return word;
-    }
-
-    private getSecureRandomInt(min: number, max: number): number {
-        const range = max - min + 1;
-        const bitLength = Math.ceil(Math.log2(range));
-        const byteLength = Math.ceil(bitLength / 8);
-        const mask = (1 << bitLength) - 1;
-        const array = new Uint8Array(byteLength);
-
-        let result: number;
-        do {
-            crypto.getRandomValues(array);
-            result = array.reduce((acc, byte) => (acc << 8) + byte, 0) & mask;
-        } while (result >= range);
-
-        return result + min;
-    }
 }
 
 export class WordPropertyEngine {
@@ -103,6 +81,9 @@ export interface Property {
     probability: number,
     score: number,
     icon: string,
+
+    nextProperty?: number // id
+    subProperties?: Property[]
 }
 
 export interface Highlight {
