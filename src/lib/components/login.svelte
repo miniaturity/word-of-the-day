@@ -2,7 +2,7 @@
     import { supabase } from "$lib/supabase";
 
     let email = $state<string>("");
-    let status = $state<"idle" | "loading" | "sent" | "error">("idle");
+    let status = $state<"idle" | "loading" | "sent" | "error" | "no-user">("idle");
     let errorMsg = $state<string>("");
 
     async function sendMagicLink() {
@@ -41,14 +41,12 @@
     <div class="login-card">
 
         <div class="card-header">
-            <span class="header-bracket">[</span>
             <span class="header-text">word-of-the-day</span>
-            <span class="header-bracket">]</span>
         </div>
 
         <div class="card-body">
-            {#if status !== "sent"}
-                <p class="prompt-label">// sign in to track your words</p>
+            {#if status !== "sent" && status !== "no-user"}
+                <p class="prompt-label">sign in to track your words! or continue without an account - you will not have access to cards.</p>
 
                 <div class="input-row">
                     <label class="input-label" for="email">email_</label>
@@ -71,22 +69,32 @@
                     </div>
                 {/if}
 
-                <button
-                    class="submit-btn"
-                    class:loading={status === "loading"}
-                    onclick={sendMagicLink}
-                    disabled={status === "loading"}
-                >
-                    {#if status === "loading"}
-                        <span class="loading-dots">sending<span class="dot">.</span><span class="dot">.</span><span class="dot">.</span></span>
-                    {:else}
-                        send magic link →
-                    {/if}
-                </button>
+                <div class="buttons">
+                    <button
+                        class="submit-btn"
+                        class:loading={status === "loading"}
+                        onclick={sendMagicLink}
+                        disabled={status === "loading"}
+                    >
+                        {#if status === "loading"}
+                            <span class="loading-dots">sending<span class="dot">.</span><span class="dot">.</span><span class="dot">.</span></span>
+                        {:else}
+                            send magic link →
+                        {/if}
+                    </button>
+
+                    <button 
+                        class="continue-btn"
+                        onclick={() => status = "no-user"}
+                    >
+                        continue
+                    </button>
+                </div>
+                
 
                 <p class="fine-print">no password needed. we'll email you a login link.</p>
 
-            {:else}
+            {:else if status === "sent"}
                 <div class="sent-state">
                     <div class="sent-icon">✉</div>
                     <p class="sent-title">check your inbox</p>
@@ -171,11 +179,6 @@
         background-color: var(--bg, #fffcf2);
     }
 
-    .header-bracket {
-        font-family: "GeistMono", monospace;
-        font-size: 1rem;
-        opacity: 0.4;
-    }
 
     .header-text {
         font-family: "GeistPixel", monospace;

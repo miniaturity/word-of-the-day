@@ -34,11 +34,12 @@
     let generatedWord = $state<string>("");
     let generationIndex = $state<number>(0);
 
-    let loggedin = $state<boolean>(false);
+    let loaded = $state<boolean>(false);
     let user = $state<User | null>(null);
 
     supabase.auth.getUser().then(({ data }) => {
         user = data.user;
+        loaded = true;
     });
 
     supabase.auth.onAuthStateChange((_event, session) => {
@@ -139,9 +140,9 @@
 
 </script>
 
-{#if !user}
+{#if !user && loaded}
     <Login />
-{:else}
+{:else if loaded}
     <div class="page" style={`--score-rarity: ${RARITY_COLOR[word.getRarity() || "ordinary"][0]}`}>
 
         {#if !generated && !generating}
@@ -203,10 +204,26 @@
             </div>
         {/if}
     </div>
+{:else}
+    <div class="loading">
+        loading...
+    </div>
 {/if}
 
 <style lang="scss"> 
     @use "sass:list";
+
+    .loading {
+        align-self: center;
+        height: fit-content;
+        
+
+        font-size: 1.2rem;
+        border: var(--border);
+        background-color: var(--bg-l);
+        padding: 8px;
+        font-family: "GeistMono";
+    }
     
 
     @property --rotation {
@@ -241,6 +258,8 @@
             }
         }
     }
+
+    @include backlight(".loading");
 
     
     :global(body) {
