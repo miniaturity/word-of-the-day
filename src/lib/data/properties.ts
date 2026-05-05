@@ -416,7 +416,7 @@ export const PROPERTIES: Property[] = [
         desc: "the sum of the indices of each character in the alphabet is greater than 100",
         probability: 18.2,
         icon: "🪨",
-        score: 9090,
+        score: 5090,
 
         applicable: (word: string) => {
             let total: number = 0;
@@ -438,7 +438,7 @@ export const PROPERTIES: Property[] = [
         desc: "the sum of the indices of each character in the alphabet is less than 30",
         probability: 2,
         icon: "🪶",
-        score: 10030,
+        score: 20030,
 
         applicable: (word: string) => {
             let total: number = 0;
@@ -628,6 +628,39 @@ export const PROPERTIES: Property[] = [
             ]
 
             return KEYWORDS.includes(word);
+        }
+    },
+    {
+        id: 25,
+        name: "starter",
+        desc: "only contains letters from the first half of the alphabet",
+        icon: "🌗",
+        probability: 2.06,
+        score: 45000,
+
+        applicable: (word: string) => {
+            const alpha = 'abcdefghijklm';
+
+            for (let i = 0; i < word.length; i++) {
+                if (!alpha.includes(word[i])) return false;
+            }
+
+            return true;
+        }
+    },
+    {
+        id: 26,
+        name: "ascent",
+        desc: "letters are organized alphabetically",
+        icon: "🔤",
+        probability: 1.1,
+        score: 100000,
+
+        applicable: (word: string) => {
+            for (let i = 0; i < word.length - 1; i++) {
+                if (word[i] > word[i + 1]) return false;
+            }
+            return true;
         }
     }
     

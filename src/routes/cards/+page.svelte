@@ -10,8 +10,9 @@
     const date = "05/03/26"
 
     const words: Word[] = [new Word("dragoning"), 
-        new Word("tung"),
-        new Word("class")
+        new Word("crypt"),
+        new Word("class"),
+        new Word("ae")
     ] 
 
     const props = {

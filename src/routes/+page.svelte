@@ -6,6 +6,9 @@
 
     import { tweened } from 'svelte/motion';
     import { cubicOut } from 'svelte/easing';
+    import Login from "$lib/components/login.svelte";
+    import { supabase } from "$lib/supabase";
+    import type { User } from "@supabase/supabase-js";
 
     const WORD_GENERATE_TIME = 5000;
 
@@ -31,7 +34,16 @@
     let generatedWord = $state<string>("");
     let generationIndex = $state<number>(0);
 
+    let loggedin = $state<boolean>(false);
+    let user = $state<User | null>(null);
 
+    supabase.auth.getUser().then(({ data }) => {
+        user = data.user;
+    });
+
+    supabase.auth.onAuthStateChange((_event, session) => {
+        user = session?.user ?? null;
+    });
 
     function randomizeBackdrop() {
         if (!word || !generating) return;
@@ -103,70 +115,95 @@
         setTimeout(generateAnim, WORD_GENERATE_TIME / word.getWord().length);
     }
 
+    async function saveResult(word: Word) {
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!user) return;
+
+        await supabase.from('word_history').insert({
+            user_id: user.id,
+            word: word.getWord(),
+            color: word.getColor()
+        });
+
+        const rows = word.getProperties().map(p => ({
+            user_id: user.id,
+            property_id: p.id,
+        }));
+
+        await supabase.from('property_history').upsert(rows, {
+            onConflict: 'user_id,property_id',
+            ignoreDuplicates: true
+        });
+    }
+
 
 </script>
 
-<div class="page" style={`--score-rarity: ${RARITY_COLOR[word.getRarity() || "ordinary"][0]}`}>
+{#if !user}
+    <Login />
+{:else}
+    <div class="page" style={`--score-rarity: ${RARITY_COLOR[word.getRarity() || "ordinary"][0]}`}>
 
-    {#if !generated && !generating}
-        <div class="hero">
-            <header>
-                word-of-the-day
-            </header>
+        {#if !generated && !generating}
+            <div class="hero">
+                <header>
+                    word-of-the-day
+                </header>
 
-            <button onclick={generateWord} class="roll">
-                generate
-            </button>
-        </div>
-    {/if}
-    {#if generating || generated}
-    
-    <div class="results">
-
-            <div class="word">
-                {#each word?.getWord() ?? [] as _, i }
-                    {#if generatedWord[i]}
-                        <span class="generated-letter">
-                            {generatedWord[i]}
-                        </span>
-                    {:else}
-                        <span class="bd-letter">
-                            {wordBackdrop[i]}
-                        </span>
-                    {/if}
-                {/each}
+                <button onclick={generateWord} class="roll">
+                    generate
+                </button>
             </div>
+        {/if}
+        {#if generating || generated}
         
-        <div class="r-info" style={`visibility: ${generated ? 'visible' : 'hidden'}`}>
-            <div class="ri-rating">
-                <div class="score">
-                    {$displayedScore.toFixed(0)} pts
+        <div class="results">
+
+                <div class="word">
+                    {#each word?.getWord() ?? [] as _, i }
+                        {#if generatedWord[i]}
+                            <span class="generated-letter">
+                                {generatedWord[i]}
+                            </span>
+                        {:else}
+                            <span class="bd-letter">
+                                {wordBackdrop[i]}
+                            </span>
+                        {/if}
+                    {/each}
+                </div>
+            
+            <div class="r-info" style={`visibility: ${generated ? 'visible' : 'hidden'}`}>
+                <div class="ri-rating">
+                    <div class="score">
+                        {$displayedScore.toFixed(0)} pts
+                    </div>
+
+                    {#if propertiesGenerated}
+                        <div class="ri-seperator"></div>
+                        <div class="word-rarity" style={`--rarity-col: ${RARITY_COLOR[word.getRarity()][0]}`}>
+                            {word.getRarity()}
+                        </div>
+                    {/if}
                 </div>
 
-                {#if propertiesGenerated}
-                    <div class="ri-seperator"></div>
-                    <div class="word-rarity" style={`--rarity-col: ${RARITY_COLOR[word.getRarity()][0]}`}>
-                        {word.getRarity()}
-                    </div>
+
+            </div>
+            
+        </div>
+        {/if}
+
+        {#if generated}
+            <div class="properties" class:show={generated}>
+                {#if word}
+                    {#each visibleProperties as prop (prop.id)}
+                        <PropertyCard property={prop} word={word}/>
+                    {/each}
                 {/if}
             </div>
-
-
-        </div>
-        
+        {/if}
     </div>
-    {/if}
-
-    {#if generated}
-        <div class="properties" class:show={generated}>
-            {#if word}
-                {#each visibleProperties as prop (prop.id)}
-                    <PropertyCard property={prop} word={word}/>
-                {/each}
-            {/if}
-        </div>
-    {/if}
-</div>
+{/if}
 
 <style lang="scss"> 
     @use "sass:list";
