@@ -90,7 +90,7 @@
  
         const { error } = await supabase
             .from("profiles")
-            .insert({ id: pendingUser!.id, username });
+            .insert({ id: pendingUser!.id, username, email: pendingUser!.email, created_at: new Date().toISOString() });
  
         if (error) {
             usernameError = error.code === "23505"
@@ -133,14 +133,14 @@
                         class:error={!!usernameError}
                         type="text"
                         placeholder="your_username"
-                        maxlength={20}
+                        maxlength={15}
                         bind:value={username}
                         onkeydown={(e) => e.key === "Enter" && submitUsername()}
                     />
                 </div>
  
                 <p class="char-count" class:near-limit={username.length > 15}>
-                    {username.length} / 20
+                    {username.length} / 15
                 </p>
  
                 {#if usernameError}
@@ -236,6 +236,10 @@
     @keyframes fadein {
         from { opacity: 0; transform: translateY(6px); }
         to   { opacity: 1; transform: translateY(0); }
+    }
+
+    .char-count {
+        font-family: "GeistMono";
     }
 
     .login-overlay {

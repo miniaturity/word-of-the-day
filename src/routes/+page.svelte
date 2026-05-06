@@ -38,8 +38,20 @@
     let user = $state<User | null>(null);
     let guest = $state<boolean>(false);
 
-    supabase.auth.getUser().then(({ data }) => {
-        user = data.user;
+    supabase.auth.getUser().then(async ({ data }) => {
+        const authUser = data.user;
+        if (authUser) {
+            const { data: profile } = await supabase
+                .from("profiles")
+                .select("id")
+                .eq("id", authUser.id)
+                .single();
+
+            if (profile) {
+                user = authUser; 
+            }
+           
+        }
         loaded = true;
     });
 
@@ -147,7 +159,7 @@
 </script>
 
 {#if !user && !guest && loaded}
-    <Login oncontinue={() => guest = true}/>
+    <Login oncontinue={() => guest = true} oncomplete={(u) => user = u}/>
 {:else if loaded}
     <div class="page" style={`--score-rarity: ${RARITY_COLOR[word.getRarity() || "ordinary"][0]}`}>
 
