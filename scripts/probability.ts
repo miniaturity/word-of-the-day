@@ -31,6 +31,7 @@ function getProbability(rule: (word: string) => boolean): void {
     for (let i = 0; i < entryCount; i++) {
         const entry = readEntry(i);
         if (rule(entry.word.toLowerCase())) { 
+            console.log(entry.word);
             success++; 
         }
     }
@@ -38,10 +39,4 @@ function getProbability(rule: (word: string) => boolean): void {
     console.log("PROBABILITY: " + (success / entryCount * 100));
 }
 
-getProbability((word: string) => {
-            for (let i = 0; i < word.length - 1; i++) {
-                if (word[i] > word[i + 1]) return false;
-            }
-            return true;
-        }
-    );
+getProbability((word: string) => word === "gold");

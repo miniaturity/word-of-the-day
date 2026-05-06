@@ -89,7 +89,7 @@ export const PROPERTIES: Property[] = [
         desc: "does not contain any vowels",
         probability: 0.18,
         icon: "🔇",
-        score: 50000,
+        score: 121000,
 
         applicable: (word: string) => {
             return /^[^aeiou]*$/i.test(word);
@@ -101,7 +101,7 @@ export const PROPERTIES: Property[] = [
         desc: "does not contain any consonants",
         probability: 0.023,
         icon: "💎",
-        score: 153333,
+        score: 353333,
 
         applicable: (word: string) => {
             return /^[^bcdfghjklmnpqrstvwxyz]*$/i.test(word);
@@ -301,7 +301,7 @@ export const PROPERTIES: Property[] = [
         desc: "contains only 1 character",
         probability: 0.038,
         icon: "1️⃣",
-        score: 801010,
+        score: 301010,
 
         applicable: (word: string) => word.length === 1
     },
@@ -654,12 +654,232 @@ export const PROPERTIES: Property[] = [
         desc: "letters are organized alphabetically",
         icon: "🔤",
         probability: 1.1,
-        score: 100000,
+        score: 123000,
 
         applicable: (word: string) => {
             for (let i = 0; i < word.length - 1; i++) {
                 if (word[i] > word[i + 1]) return false;
             }
+            return true;
+        }
+    },
+    {
+        id: 27,
+        name: "-tious",
+        desc: "contains the suffix '-tious'",
+        icon: "😋",
+        probability: 0.07,
+        score: 250000,
+
+        applicable: (word: string) => word.endsWith("tious"),
+        highlight: (word: string) => {
+            return {
+                [word[word.length - 1]]: {},
+                [word[word.length - 2]]: {},
+                [word[word.length - 3]]: {},
+                [word[word.length - 4]]: {},
+                [word[word.length - 5]]: {}
+            }
+        }
+    },
+    {
+        id: 28,
+        name: "descent",
+        desc: "letters are organized alphabetically, descending",
+        icon: "🔡",
+        probability: 0.79,
+        score: 231000,
+
+        applicable: (word: string) => {
+            for (let i = 0; i < word.length - 1; i++) {
+                if (word[i] < word[i + 1]) return false;
+            }
+            return true;
+        }
+    },
+    {
+        id: 29,
+        name: "ooough",
+        desc: "contains the substring 'ough'",
+        icon: "🐈",
+        probability: 0.18,
+        score: 120000,
+
+        applicable: (word: string) => word.includes("ough"),
+        highlight: (word: string) => {
+            return {
+                [word[word.length - 1]]: {},
+                [word[word.length - 2]]: {},
+                [word[word.length - 3]]: {},
+                [word[word.length - 4]]: {},
+            }
+        }
+    },
+    {
+        id: 30,
+        name: "elemental (2)",
+        desc: "is an element in the periodic table",
+        icon: "⚗️",
+        probability: 0.08,
+        score: 249900,
+
+        applicable: (word: string) => {
+            const ELEMENTS: string[] = [
+                "hydrogen",
+                "helium",
+                "lithium",
+                "beryllium",
+                "boron",
+                "carbon",
+                "nitrogen",
+                "oxygen",
+                "fluorine",
+                "neon",
+                "sodium",
+                "magnesium",
+                "aluminium",
+                "silicon",
+                "phosphorus",
+                "sulfur",
+                "chlorine",
+                "argon",
+                "potassium",
+                "calcium",
+                "scandium",
+                "titanium",
+                "vanadium",
+                "chromium",
+                "manganese",
+                "iron",
+                "cobalt",
+                "nickel",
+                "copper",
+                "zinc",
+                "gallium",
+                "germanium",
+                "arsenic",
+                "selenium",
+                "bromine",
+                "krypton",
+                "rubidium",
+                "strontium",
+                "yttrium",
+                "zirconium",
+                "niobium",
+                "molybdenum",
+                "technetium",
+                "ruthenium",
+                "rhodium",
+                "palladium",
+                "silver",
+                "cadmium",
+                "indium",
+                "tin",
+                "antimony",
+                "tellurium",
+                "iodine",
+                "xenon",
+                "cesium",
+                "barium",
+                "lanthanum",
+                "cerium",
+                "praseodymium",
+                "neodymium",
+                "promethium",
+                "samarium",
+                "europium",
+                "gadolinium",
+                "terbium",
+                "dysprosium",
+                "holmium",
+                "erbium",
+                "thulium",
+                "ytterbium",
+                "lutetium",
+                "hafnium",
+                "tantalum",
+                "tungsten",
+                "rhenium",
+                "osmium",
+                "iridium",
+                "platinum",
+                "gold",
+                "mercury",
+                "thallium",
+                "lead",
+                "bismuth",
+                "polonium",
+                "astatine",
+                "radon",
+                "francium",
+                "radium",
+                "actinium",
+                "thorium",
+                "protactinium",
+                "uranium",
+                "neptunium",
+                "plutonium",
+                "americium",
+                "curium",
+                "berkelium",
+                "californium",
+                "einsteinium",
+                "fermium",
+                "mendelevium",
+                "nobelium",
+                "lawrencium",
+                "rutherfordium",
+                "dubnium",
+                "seaborgium",
+                "bohrium",
+                "hassium",
+                "meitnerium",
+                "darmstadtium",
+                "roentgenium",
+                "copernicium",
+                "nihonium",
+                "flerovium",
+                "moscovium",
+                "livermorium",
+                "tennessine",
+                "oganesson",
+                "ununennium"
+            ]
+
+            return ELEMENTS.includes(word);
+        }
+    },
+    {
+        id: 31,
+        name: "GOLD GOLD GOLD",
+        desc: "is gold",
+        icon: "🔪",
+        probability: 0.002,
+        score: 999999,
+
+        applicable: (word: string) => word === "gold",
+    },
+    {
+        id: 32,
+        name: "alternator",
+        desc: "the letters alternate from being consonants and vowels (and vice versa)",
+        icon: "🔃",
+        probability: 0,
+        score: 0,
+
+        applicable: (word: string) => {
+            const vowels = "aeiou";
+            let isVowel = vowels.includes(word[0]);
+            
+            if (word.length === 1) return true;
+            
+            for (let i = 1; i < word.length; i++) {
+                const curr = vowels.includes(word[i]);
+
+                if (isVowel === curr) return false;
+                isVowel = curr;
+            }
+
             return true;
         }
     }

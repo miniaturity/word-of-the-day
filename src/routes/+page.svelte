@@ -36,14 +36,20 @@
 
     let loaded = $state<boolean>(false);
     let user = $state<User | null>(null);
+    let guest = $state<boolean>(false);
 
     supabase.auth.getUser().then(({ data }) => {
         user = data.user;
         loaded = true;
     });
 
-    supabase.auth.onAuthStateChange((_event, session) => {
-        user = session?.user ?? null;
+    supabase.auth.onAuthStateChange((event, session) => {
+        if (event === "SIGNED_OUT") {
+            user = null;
+            guest = false;
+        } else if (event === "TOKEN_REFRESHED") {
+            user = session?.user ?? null;
+        }
     });
 
     function randomizeBackdrop() {
@@ -140,8 +146,8 @@
 
 </script>
 
-{#if !user && loaded}
-    <Login />
+{#if !user && !guest && loaded}
+    <Login oncontinue={() => guest = true}/>
 {:else if loaded}
     <div class="page" style={`--score-rarity: ${RARITY_COLOR[word.getRarity() || "ordinary"][0]}`}>
 
@@ -154,6 +160,12 @@
                 <button onclick={generateWord} class="roll">
                     generate
                 </button>
+
+                {#if guest}
+                    <button class="guest-sn" onclick={() => guest = false}>
+                        sign in
+                    </button>
+                {/if}
             </div>
         {/if}
         {#if generating || generated}
@@ -291,6 +303,25 @@
         font-size: 1.4rem;
         width: fit-content;
         padding: var(--margin);
+        
+    }
+
+    .guest-sn {
+        cursor: pointer;
+        user-select: none;
+        border: var(--border);
+        background-color: var(--border-col);
+        color: #fff;
+        padding: 4px;
+        font-family: "GeistMono";
+        font-size: 0.9rem;
+        width: fit-content;
+        transition: all 0.1s ease-in-out;
+
+        &:hover {
+            color: var(--border-col);
+            background-color: var(--bg-l);
+        }
     }
 
     .page {

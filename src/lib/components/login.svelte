@@ -1,27 +1,69 @@
 <script lang="ts">
     import { supabase } from "$lib/supabase";
-
-    let email = $state<string>("");
-    let status = $state<"idle" | "loading" | "sent" | "error" | "no-user">("idle");
-    let errorMsg = $state<string>("");
-
+    import type { User } from "@supabase/supabase-js";
+ 
+    let {
+        oncontinue,
+        oncomplete,
+    }: {
+        oncontinue?: () => void;
+        oncomplete?: (user: User) => void;
+    } = $props();
+ 
+    let email = $state("");
+    let username = $state("");
+    let usernameError = $state("");
+    let status = $state<"idle" | "loading" | "sent" | "checking" | "new-user" | "error">("idle");
+    let errorMsg = $state("");
+    let pendingUser = $state<User | null>(null);
+ 
+    async function handleSignedIn(user: User) {
+        if (status === "checking" || status === "new-user") return;
+        status = "checking";
+ 
+        const { data: profile } = await supabase
+            .from("profiles")
+            .select("id")
+            .eq("id", user.id)
+            .single();
+ 
+        if (profile) {
+            oncomplete?.(user);
+        } else {
+            pendingUser = user;
+            status = "new-user";
+        }
+    }
+ 
+    $effect(() => {
+        supabase.auth.getSession().then(({ data: { session } }) => {
+            if (session?.user) handleSignedIn(session.user);
+        });
+ 
+        const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+            if (event === "SIGNED_IN" && session?.user) {
+                handleSignedIn(session.user);
+            }
+        });
+ 
+        return () => subscription.unsubscribe();
+    });
+ 
     async function sendMagicLink() {
         if (!email || !email.includes("@")) {
             errorMsg = "enter a valid email.";
             status = "error";
             return;
         }
-
+ 
         status = "loading";
         errorMsg = "";
-
+ 
         const { error } = await supabase.auth.signInWithOtp({
             email,
-            options: {
-                emailRedirectTo: window.location.origin
-            }
+            options: { emailRedirectTo: window.location.origin }
         });
-
+ 
         if (error) {
             status = "error";
             errorMsg = error.message.toLowerCase();
@@ -29,7 +71,37 @@
             status = "sent";
         }
     }
-
+ 
+    async function submitUsername() {
+        usernameError = "";
+ 
+        if (username.length < 2) {
+            usernameError = "at least 2 characters required.";
+            return;
+        }
+        if (username.length > 15) {
+            usernameError = "max 15 characters.";
+            return;
+        }
+        if (!/^[a-zA-Z0-9_]+$/.test(username)) {
+            usernameError = "letters, numbers, and underscores only.";
+            return;
+        }
+ 
+        const { error } = await supabase
+            .from("profiles")
+            .insert({ id: pendingUser!.id, username });
+ 
+        if (error) {
+            usernameError = error.code === "23505"
+                ? "username already taken."
+                : error.message.toLowerCase();
+            return;
+        }
+ 
+        oncomplete?.(pendingUser!);
+    }
+ 
     function reset() {
         status = "idle";
         email = "";
@@ -45,9 +117,46 @@
         </div>
 
         <div class="card-body">
-            {#if status !== "sent" && status !== "no-user"}
-                <p class="prompt-label">sign in to track your words! or continue without an account - you will not have access to cards.</p>
-
+            {#if status === "checking"}
+                <div class="checking-state">
+                    <span class="loading-dots">checking<span class="dot">.</span><span class="dot">.</span><span class="dot">.</span></span>
+                </div>
+ 
+            {:else if status === "new-user"}
+                <p class="prompt-label">pick a username to get started. letters, numbers, and underscores only.</p>
+ 
+                <div class="input-row" class:error-border={!!usernameError}>
+                    <label class="input-label" for="username">user_</label>
+                    <input
+                        id="username"
+                        class="email-input"
+                        class:error={!!usernameError}
+                        type="text"
+                        placeholder="your_username"
+                        maxlength={20}
+                        bind:value={username}
+                        onkeydown={(e) => e.key === "Enter" && submitUsername()}
+                    />
+                </div>
+ 
+                <p class="char-count" class:near-limit={username.length > 15}>
+                    {username.length} / 20
+                </p>
+ 
+                {#if usernameError}
+                    <div class="error-row">
+                        <span class="error-prefix">!</span>
+                        <span class="error-text">{usernameError}</span>
+                    </div>
+                {/if}
+ 
+                <button class="submit-btn" onclick={submitUsername}>
+                    confirm →
+                </button>
+ 
+            {:else if status !== "sent"}
+                <p class="prompt-label">sign in to track your words! or continue without an account — you will not have access to cards.</p>
+ 
                 <div class="input-row">
                     <label class="input-label" for="email">email_</label>
                     <input
@@ -61,14 +170,14 @@
                         disabled={status === "loading"}
                     />
                 </div>
-
+ 
                 {#if status === "error"}
                     <div class="error-row">
                         <span class="error-prefix">!</span>
                         <span class="error-text">{errorMsg}</span>
                     </div>
                 {/if}
-
+ 
                 <div class="buttons">
                     <button
                         class="submit-btn"
@@ -82,18 +191,14 @@
                             send magic link →
                         {/if}
                     </button>
-
-                    <button 
-                        class="continue-btn"
-                        onclick={() => status = "no-user"}
-                    >
-                        continue
+ 
+                    <button class="continue-btn" onclick={() => oncontinue?.()}>
+                        continue as guest
                     </button>
                 </div>
-                
-
+ 
                 <p class="fine-print">no password needed. we'll email you a login link.</p>
-
+ 
             {:else if status === "sent"}
                 <div class="sent-state">
                     <div class="sent-icon">✉</div>
@@ -262,6 +367,12 @@
         color: #ff3e00;
     }
 
+    .buttons {
+        display: flex;
+        flex-direction: row;
+        gap: 8px;
+    }
+
     .submit-btn {
         font-family: "GeistMono", monospace;
         font-size: 0.9rem;
@@ -272,6 +383,7 @@
         cursor: pointer;
         text-align: left;
         transition: background 0.15s, color 0.15s;
+        flex-grow: 1;
 
         &:hover:not(:disabled) {
             background-color: var(--bg, #fffcf2);
@@ -286,6 +398,30 @@
         &.loading {
             pointer-events: none;
         }
+    }
+
+    .continue-btn {
+        font-family: "GeistMono", monospace;
+        font-size: 0.9rem;
+        padding: 10px 14px;
+        border: var(--border, 2px solid #1e1e1e);
+        background-color: #1e1e1e;
+        color: var(--bg, #fffcf2);
+        cursor: pointer;
+        text-align: left;
+        transition: background 0.15s, color 0.15s;
+        flex-grow: 1;
+
+        &:hover:not(:disabled) {
+            background-color: var(--bg, #fffcf2);
+            color: #1e1e1e;
+        }
+
+        &:disabled {
+            cursor: default;
+            opacity: 0.7;
+        }
+
     }
 
     .loading-dots {
