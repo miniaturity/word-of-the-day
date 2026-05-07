@@ -126,7 +126,7 @@
     let checking = $state<boolean>(false);
 
     async function generateWord() {
-        if (generated || checking) return;
+        if (generated || checking || generating) return;
 
         checking = true; // prevent double requests (spam clicking)
 
