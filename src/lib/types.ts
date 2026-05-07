@@ -68,7 +68,7 @@ export class Word {
     public getColor(): string { return this.color; }
 
     private getWordRarityScore(score: number): Rarity {
-        if (score <= 1000) return "ordinary";
+        if (score <= 2000) return "ordinary";
         if (score <= 10000) return "uncommon";
         if (score <= 100000) return "unique";
         if (score <= 250000) return "legendary";

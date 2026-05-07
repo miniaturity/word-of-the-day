@@ -8,9 +8,9 @@ interface DictionaryWord {
     definition: string;
 }
 
-const indexBuffer = readFileSync(resolve('src/lib/data/dict.index'));
+const indexBuffer = readFileSync(resolve('../data/dict.index'));
 const entryCount = indexBuffer.byteLength / 4;
-const dictFd = openSync(resolve('src/lib/data/dict.ndjson'), 'r');
+const dictFd = openSync(resolve('../data/dict.ndjson'), 'r');
 
 function readEntry(i: number): DictionaryWord {
     const offset = indexBuffer.readUInt32LE(i * 4);
@@ -39,13 +39,4 @@ function getProbability(rule: (word: string) => boolean): void {
     console.log("PROBABILITY: " + (success / entryCount * 100));
 }
 
-getProbability((word: string) => {
-            const alpha = 'abcdefghijklm';
-
-            for (let i = 0; i < word.length; i++) {
-                if (alpha.includes(word[i])) return false;
-            }
-
-            return true;
-        }
-    );
+getProbability((word: string) => word.includes(" "));

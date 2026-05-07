@@ -889,7 +889,7 @@ export const PROPERTIES: Property[] = [
         desc: "there are more vowels than consonants",
         icon: "🎚️",
         probability: 4.77,
-        score: 23000,
+        score: 23400,
 
         applicable: (word: string) => {
             const vowels = "aeiou";
@@ -936,6 +936,21 @@ export const PROPERTIES: Property[] = [
             }
 
             return true;
+        }
+    },
+    {
+        id: 36,
+        name: "two words",
+        desc: "contains a space",
+        icon: "👽",
+        probability: 1.17,
+        score: 67000,
+
+        applicable: (word: string) => word.includes(" "),
+        highlight: (word: string) => {
+            return {
+                [word.indexOf(" ")]: {}
+            }
         }
     }
     
