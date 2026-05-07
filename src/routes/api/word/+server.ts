@@ -1,13 +1,17 @@
-// src/routes/api/word/+server.ts
 import { json } from '@sveltejs/kit';
 import { readFileSync, openSync, readSync, closeSync } from 'fs';
+import { fileURLToPath } from 'url';
 import { randomInt } from 'crypto';
-import { resolve } from 'path';
 import type { RequestHandler } from './$types';
 
 export const config = {
     runtime: 'nodejs22.x',
-    includeFiles: ['src/lib/data/dict.index', 'src/lib/data/dict.ndjson']
+    // paths are now relative to project root, co-located with the route
+    // please fix
+    includeFiles: [
+        'src/routes/api/word/dict.index',
+        'src/routes/api/word/dict.ndjson'
+    ]
 };
 
 interface DictionaryWord {
@@ -17,16 +21,14 @@ interface DictionaryWord {
 }
 
 
-function getDataPath(filename: string): string {
-    return resolve(process.cwd(), 'src/lib/data/', filename);
-}
+const INDEX_PATH = fileURLToPath(new URL('./dict.index', import.meta.url));
+const NDJSON_PATH = fileURLToPath(new URL('./dict.ndjson', import.meta.url));
+
+const indexBuffer = readFileSync(INDEX_PATH);
+const entryCount = indexBuffer.byteLength / 4;
 
 function readEntry(i: number): DictionaryWord {
-    const indexBuffer = readFileSync(getDataPath('dict.index'));
-    const entryCount = indexBuffer.byteLength / 4;
-
-    const fd = openSync(getDataPath('dict.ndjson'), 'r');
-
+    const fd = openSync(NDJSON_PATH, 'r');
     try {
         const offset = indexBuffer.readUInt32LE(i * 4);
         const nextOffset = i + 1 < entryCount
@@ -36,7 +38,6 @@ function readEntry(i: number): DictionaryWord {
         const length = nextOffset - offset;
         const buffer = Buffer.alloc(length);
         readSync(fd, buffer, 0, length, offset);
-
         return JSON.parse(buffer.toString('utf-8').trimEnd());
     } finally {
         closeSync(fd);
@@ -44,10 +45,13 @@ function readEntry(i: number): DictionaryWord {
 }
 
 export const GET: RequestHandler = () => {
-    const indexBuffer = readFileSync(getDataPath('dict.index'));
-    const entryCount = indexBuffer.byteLength / 4;
-
-    const i = randomInt(0, entryCount);
-    const entry = readEntry(i);
-    return json(entry);
+    try {
+        const i = randomInt(0, entryCount);
+        const entry = readEntry(i);
+        return json(entry);
+    } catch (err) {
+        // Check Vercel function logs for this output
+        console.error('[/api/word] failed:', err);
+        return json({ error: String(err) }, { status: 500 });
+    }
 };
