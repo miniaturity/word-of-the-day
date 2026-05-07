@@ -40,10 +40,10 @@
 
     <div class="h-nav">
         <a href="/cards" class="h-cards">
-            {"{collection}"}  
+            {"[collection]"}  
         </a>
         <button class="h-username" onclick={onclick}>
-            <span class={`hu-user ${confirmingLogout && "hidden"}`}>{username ? `{${username}}` : "log in"}</span>
+            <span class={`hu-user ${confirmingLogout && "hidden"}`}>{username ? `[${username}]` : "[log in]"}</span>
             <span class={`hu-confirm ${confirmingLogout && "confirming"}`} >{"{logout}"}</span>
         </button>
     </div>

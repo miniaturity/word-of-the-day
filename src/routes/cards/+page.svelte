@@ -5,6 +5,7 @@
     import { supabase } from "$lib/supabase";
     import { Word } from "$lib/types";
     import type { User } from "@supabase/supabase-js";
+    import { onMount } from "svelte";
 
     let loaded = $state<boolean>(false);
     let user = $state<User | null>(null);
@@ -12,24 +13,29 @@
 
     let wordhistory = $state<WordHistory[] | null>(null);
 
-    supabase.auth.getUser().then(async ({ data }) => {
+    onMount(async () => {
+        const { data } = await supabase.auth.getUser();
         const authUser = data.user;
-        if (authUser) {
-            const { data: profile } = await supabase
-                .from("profiles")
-                .select("id")
-                .eq("id", authUser.id)
-                .single();
 
-            if (profile) {
-                user = authUser; 
-            }
-
-            wordhistory = await getUserWords(authUser.id);
-            username = await getUsername(authUser.id);
-        } else {
+        if (!authUser) {
             goto("/");
+            return;
         }
+
+        const { data: profile } = await supabase
+            .from("profiles")
+            .select("id")
+            .eq("id", authUser.id)
+            .single();
+
+        if (!profile) {
+            goto("/");
+            return;
+        }
+
+        user = authUser;
+        wordhistory = await getUserWords(authUser.id);
+        username = await getUsername(authUser.id);
         loaded = true;
     });
 

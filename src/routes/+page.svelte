@@ -14,6 +14,7 @@
     import Wordcard from "$lib/components/wordcard.svelte";
 
     import { toBlob } from 'html-to-image';
+    import { goto } from "$app/navigation";
 
     const WORD_GENERATE_TIME = 5000;
 
@@ -225,19 +226,51 @@
         checked = true;
     });
 
-    async function share() {
-        if (!shareElement) return;
+    // make the fonts available in html-to-image conversion
+    // they get messed up when built, so we have to put it
+    // in static!
+    async function getFontEmbedCSS(): Promise<string> {
+        const fonts = [
+            { family: "GeistMono", url: "/fonts/GeistMono-Regular.ttf" },
+            { family: "GeistPixel", url: "/fonts/GeistPixel-Square.ttf" },
+            { family: "Geist", url: "/fonts/Geist-Regular.ttf" },
+        ];
 
+        const declarations = await Promise.all(
+            fonts.map(async ({ family, url }) => {
+                const res = await fetch(url);
+                const buffer = new Uint8Array(await res.arrayBuffer());
+
+                let b64 = "";
+                const chunkSize = 8192;
+                for (let i = 0; i < buffer.length; i += chunkSize) {
+                    b64 += String.fromCharCode(...buffer.subarray(i, i + chunkSize));
+                }
+                b64 = btoa(b64);
+
+                return `@font-face { font-family: "${family}"; src: url("data:font/truetype;base64,${b64}"); }`;
+            })
+        );
+
+        return declarations.join("\n");
+    }
+
+
+    async function share() {
+        if (!word || !shareElement) return;
+        
+        
         try {
-            const blob = await toBlob(shareElement);
+            const blob = await toBlob(shareElement, {
+                fontEmbedCSS: await getFontEmbedCSS(),
+                pixelRatio: 2,
+            });
 
             if (blob) {
-                const item = new ClipboardItem({ 'image/png': blob });
-                await navigator.clipboard.write([item]);
-                alert('Image copied to clipboard!');
+                await navigator.clipboard.write([new ClipboardItem({ "image/png": blob })]);
             }
         } catch (error) {
-            console.error('Oops, something went wrong!', error);
+            console.error("Share failed:", error);
         }
     }
 
@@ -249,8 +282,20 @@
         username={username}
         user={user}
         login={() => { guest = false }}
-        logout={logout}
+        logout={() => { logout(); user = null; guest = true; }}
     />
+{/if}
+
+{#if propertiesGenerated}
+    <div class="share-card">
+        <Wordcard 
+            user={username || "guest"}
+            word={word}
+            date={new Date()}
+            asHover={false}
+            bind:ref={shareElement}
+        />
+    </div>
 {/if}
 
 {#if !user && !guest && loaded}
@@ -294,16 +339,23 @@
                     </div>
 
                     {#if propertiesGenerated}
-                        <div class="ri-seperator"></div>
                         <div class="word-rarity" style={`--rarity-col: ${RARITY_COLOR[word.getRarity()][0]}`}>
                             {word.getRarity()}
                         </div>
                     {/if}
                 </div>
 
-                <button class="share" onclick={share}>
-                    share
-                </button>
+                <div class="ri-lower">
+                    {#if propertiesGenerated}
+                        <button class="share" onclick={share}>
+                            share
+                        </button>
+
+                        <a class="goto-cards" href="/cards">
+                            collection
+                        </a>
+                    {/if}
+                </div>
 
 
             </div>
@@ -320,16 +372,6 @@
                 {/if}
             </div>
         {/if}
-
-        {#if propertiesGenerated && word && username}
-            <div class="card-view" bind:this={shareElement}>
-                <Wordcard 
-                    word={word}
-                    user={username}
-                    date={new Date()}
-                />
-            </div>
-        {/if}
     </div>
 {:else}
     <div class="loading">
@@ -340,9 +382,9 @@
 <style lang="scss"> 
     @use "sass:list";
 
-    .card-view {
+    .share-card {
         position: absolute;
-        left: 10000px; // yeah cheap trick whatever lol
+        left: -1000px; // shhh they wont know......
     }
 
     .loading {
@@ -447,12 +489,38 @@
     .r-info {
         display: flex;
         flex-direction: column;
+        align-items: center;
+        gap: 12px;
     }
 
-    .ri-seperator {
-        width: 5px;
-        height: 5px;
-        background-color: var(--border-col);
+    .share {
+        display: flex;
+        align-items: center;
+        width: fit-content;
+        padding: 4px;
+        background: var(--bg-l);
+        font-family: "GeistMono";
+        border: var(--border);
+        font-size: 0.8rem;
+        cursor: pointer;
+    }
+
+    .goto-cards {
+        display: flex;
+        align-items: center;
+        width: fit-content;
+        padding: 4px;
+        background: var(--bg-l);
+        border: var(--border);
+        text-decoration: none;
+        font-family: "GeistMono";
+        font-size: 0.8rem;
+    }
+
+    .ri-lower {
+        display: flex;
+        flex-direction: row;
+        gap: 8px;
     }
 
     .hero {
@@ -477,7 +545,7 @@
         justify-content: center;
         gap: var(--margin);
 
-        height: 35vh;
+        height: 45vh;
     }
 
     .ri-rating {
@@ -550,7 +618,7 @@
         from {
             height: 0;
         } to {
-            height: 65vh;
+            height: 55vh;
         }
     }
 

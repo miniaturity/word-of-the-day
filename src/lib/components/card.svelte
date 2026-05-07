@@ -8,9 +8,11 @@
     let {
         rarity,
         children,
+        render
     }: {
         rarity: Rarity;
         children?: Snippet;
+        render: boolean;
     } = $props();
 
     const TEXTURES_SHINY: Partial<Record<Rarity, string>> = {
@@ -26,7 +28,7 @@
     }
 </script>
 
-{#if children}
+{#if children && render}
     {#if rarity === "ordinary"}
         <HoverTilt {...standardProps} 
             class="card"
@@ -63,6 +65,9 @@
             {@render children()}
         </HoverTilt>
     {/if}
+
+{:else if children}
+    {@render children()}
 {/if}
 
 <style lang="scss">

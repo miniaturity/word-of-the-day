@@ -6,10 +6,14 @@
         word,
         user,
         date,
+        ref = $bindable(),
+        asHover,
     }: {
         word: Word,
         user: string,
-        date: Date
+        date: Date,
+        ref?: HTMLElement
+        asHover?: boolean,
     } = $props();
     
     let properties = $derived<Property[]>([...word.getProperties()].sort((a, b) => b.score - a.score));
@@ -82,8 +86,8 @@
     
 </script>
 
-<Card rarity={word.getRarity()}>
-    <div class={`word-card ${word.getRarity()}`} style={`--rar-col: ${color}; ${bg && `--bg: ${bg};`}`}>
+<Card rarity={word.getRarity()} render={asHover || true}>
+    <div bind:this={ref} class={`word-card ${word.getRarity()}`} style={`--rar-col: ${color}; ${bg && `--bg: ${bg};`}`}>
         <div class="wc-upper">
             <div class="wc-header">
                 <div class="wc-rarity">
