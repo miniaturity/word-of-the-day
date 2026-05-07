@@ -1,6 +1,8 @@
+// src/routes/api/word/+server.ts
 import { json } from '@sveltejs/kit';
 import { readFileSync, openSync, readSync, closeSync } from 'fs';
-import { resolve } from 'path';
+import { fileURLToPath } from 'url';
+import { resolve, dirname } from 'path';
 import { randomInt } from 'crypto';
 import type { RequestHandler } from './$types';
 
@@ -10,18 +12,21 @@ interface DictionaryWord {
     definition: string;
 }
 
-const indexBuffer = readFileSync(resolve('src/lib/data/dict.index'));
+const dataDir = dirname(fileURLToPath(import.meta.url));
+
+// ...gulp
+const indexBuffer = readFileSync(resolve(dataDir, '../../../lib/data/dict.index'));
 const entryCount = indexBuffer.byteLength / 4;
 
 function readEntry(i: number): DictionaryWord {
-    const fd = openSync(resolve('src/lib/data/dict.ndjson'), 'r');
+    const fd = openSync(resolve(dataDir, '../../../lib/data/dict.ndjson'), 'r');
 
     try {
         const offset = indexBuffer.readUInt32LE(i * 4);
 
         const nextOffset = i + 1 < entryCount
             ? indexBuffer.readUInt32LE((i + 1) * 4)
-            : offset + 512; 
+            : offset + 512;
 
         const length = nextOffset - offset;
         const buffer = Buffer.alloc(length);
@@ -30,13 +35,12 @@ function readEntry(i: number): DictionaryWord {
 
         return JSON.parse(buffer.toString('utf-8').trimEnd());
     } finally {
-        closeSync(fd); 
+        closeSync(fd);
     }
 }
 
 export const GET: RequestHandler = () => {
     const i = randomInt(0, entryCount);
     const entry = readEntry(i);
-
     return json(entry);
 };

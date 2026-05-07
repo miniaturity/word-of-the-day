@@ -106,7 +106,6 @@
     supabase.auth.onAuthStateChange((event, session) => {
         if (event === "SIGNED_OUT") {
             user = null;
-            guest = false;
         } else if (event === "TOKEN_REFRESHED") {
             user = session?.user ?? null;
         }
@@ -268,6 +267,7 @@
 
             if (blob) {
                 await navigator.clipboard.write([new ClipboardItem({ "image/png": blob })]);
+                window.alert("Copied image to clipboard!");
             }
         } catch (error) {
             console.error("Share failed:", error);
@@ -282,7 +282,11 @@
         username={username}
         user={user}
         login={() => { guest = false }}
-        logout={() => { logout(); user = null; guest = true; }}
+        logout={async () => {
+            await logout();
+            user = null;
+            guest = true;
+        }}
     />
 {/if}
 
