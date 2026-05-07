@@ -50,7 +50,6 @@ export const GET: RequestHandler = () => {
         const entry = readEntry(i);
         return json(entry);
     } catch (err) {
-        // Check Vercel function logs for this output
         console.error('[/api/word] failed:', err);
         return json({ error: String(err) }, { status: 500 });
     }
