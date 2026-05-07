@@ -7,6 +7,7 @@
 
 <svelte:head>
 	<link rel="icon" href={favicon} />
+    <title>word of the day</title>
 </svelte:head>
 
 
