@@ -44,3 +44,8 @@ export const GET: RequestHandler = () => {
     const entry = readEntry(i);
     return json(entry);
 };
+
+export const config = {
+    runtime: 'nodejs22.x',
+    includeFiles: ['src/lib/data/dict.index', 'src/lib/data/dict.ndjson']
+};
