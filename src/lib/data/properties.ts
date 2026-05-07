@@ -311,7 +311,7 @@ export const PROPERTIES: Property[] = [
         desc: "contains a dash",
         probability: 2.3,
         icon: "➖",
-        score: 14500,
+        score: 15500,
 
         applicable: (word: string) => word.includes("-"),
         highlight: (word: string) => ({[word.indexOf("-")]: {}})
@@ -341,7 +341,7 @@ export const PROPERTIES: Property[] = [
         desc: "contains three of the same character",
         probability: 13.3,
         icon: "👩‍👧‍👦",
-        score: 6333,
+        score: 5333,
 
         applicable: (word: string) => /([a-z])(?=(?:.*?\1){2})/.test(word),
 
@@ -416,7 +416,7 @@ export const PROPERTIES: Property[] = [
         desc: "the sum of the indices of each character in the alphabet is greater than 100",
         probability: 18.2,
         icon: "🪨",
-        score: 5090,
+        score: 4290,
 
         applicable: (word: string) => {
             let total: number = 0;
@@ -438,7 +438,7 @@ export const PROPERTIES: Property[] = [
         desc: "the sum of the indices of each character in the alphabet is less than 30",
         probability: 2,
         icon: "🪶",
-        score: 20030,
+        score: 21030,
 
         applicable: (word: string) => {
             let total: number = 0;
@@ -527,7 +527,7 @@ export const PROPERTIES: Property[] = [
         desc: "has the suffix 'ism'",
         icon: "🧩",
         probability: 0.7,
-        score: 100310,
+        score: 80310,
 
         applicable: (word: string) => word.endsWith("ism"),
         highlight: (word: string) => ({
@@ -562,7 +562,7 @@ export const PROPERTIES: Property[] = [
         desc: "is a typescript keyword",
         icon: "🧑‍💻",
         probability: 0.2,
-        score: 177000,
+        score: 100001,
 
         applicable: (word: string) => {
             const KEYWORDS: string[] = [
@@ -636,7 +636,7 @@ export const PROPERTIES: Property[] = [
         desc: "only contains letters from the first half of the alphabet",
         icon: "🌗",
         probability: 2.06,
-        score: 45000,
+        score: 20000,
 
         applicable: (word: string) => {
             const alpha = 'abcdefghijklm';
@@ -688,7 +688,7 @@ export const PROPERTIES: Property[] = [
         desc: "letters are organized alphabetically, descending",
         icon: "🔡",
         probability: 0.79,
-        score: 231000,
+        score: 71321,
 
         applicable: (word: string) => {
             for (let i = 0; i < word.length - 1; i++) {
@@ -703,7 +703,7 @@ export const PROPERTIES: Property[] = [
         desc: "contains the substring 'ough'",
         icon: "🐈",
         probability: 0.18,
-        score: 120000,
+        score: 120002,
 
         applicable: (word: string) => word.includes("ough"),
         highlight: (word: string) => {
@@ -864,8 +864,8 @@ export const PROPERTIES: Property[] = [
         name: "alternator",
         desc: "the letters alternate from being consonants and vowels (and vice versa)",
         icon: "🔃",
-        probability: 0,
-        score: 0,
+        probability: 9.75,
+        score: 9990,
 
         applicable: (word: string) => {
             const vowels = "aeiou";
@@ -878,6 +878,61 @@ export const PROPERTIES: Property[] = [
 
                 if (isVowel === curr) return false;
                 isVowel = curr;
+            }
+
+            return true;
+        }
+    },
+    {
+        id: 33,
+        name: "voweler",
+        desc: "there are more vowels than consonants",
+        icon: "🎚️",
+        probability: 4.77,
+        score: 23000,
+
+        applicable: (word: string) => {
+            const vowels = "aeiou";
+            let vc = 0, cc = 0;
+
+            for (let i = 0; i < word.length; i++) {
+                if (vowels.includes(word[i])) vc++;
+                else if (/^[A-Za-z]+$/.test(word[i])) cc++;
+            }
+
+            return vc > cc;
+        }
+    },
+    {
+        id: 34,
+        name: "inter-",
+        desc: "contains the prefix 'inter'",
+        icon: "👉",
+        probability: 0.42,
+        score: 100100,
+
+        applicable: (word: string) => word.startsWith("inter"),
+        highlight: (word: string) => ({
+            [word[0]]: {},
+            [word[1]]: {},
+            [word[2]]: {},
+            [word[3]]: {},
+            [word[4]]: {}
+        })
+    },
+    {
+        id: 35,
+        name: "ender",
+        desc: "only contains letters from the second half of the alphabet",
+        icon: "🌓",
+        probability: 0.83,
+        score: 83000,
+
+        applicable: (word: string) => {
+            const alpha = 'abcdefghijklm';
+
+            for (let i = 0; i < word.length; i++) {
+                if (alpha.includes(word[i])) return false;
             }
 
             return true;

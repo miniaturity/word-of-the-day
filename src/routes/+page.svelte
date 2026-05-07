@@ -1,7 +1,7 @@
 <script lang="ts">
     import { tick } from "svelte";
     import PropertyCard from "$lib/components/propertycard.svelte";
-    import type { Property, Rarity } from "$lib/types";
+    import type { Property } from "$lib/types";
     import { RARITY_COLOR, Word } from "$lib/types";
 
     import { tweened } from 'svelte/motion';
@@ -9,13 +9,22 @@
     import Login from "$lib/components/login.svelte";
     import { supabase } from "$lib/supabase";
     import type { User } from "@supabase/supabase-js";
+    import { getGenerationAvailable, getUsername, logout, saveWordResult } from "$lib/data/wordHistory";
+    import Header from "$lib/components/header.svelte";
+    import Wordcard from "$lib/components/wordcard.svelte";
+
+    import { toBlob } from 'html-to-image';
 
     const WORD_GENERATE_TIME = 5000;
+
+    
 
     let word = $state<Word>(new Word());
     let score = $derived(word?.getScore() || 0);
     let properties = $state<Property[]>([]);
     let visibleProperties = $state<Property[]>([]);
+
+    let shareElement = $state<HTMLElement>();
 
     const displayedScore = tweened(0, {
         duration: 500,
@@ -37,6 +46,37 @@
     let loaded = $state<boolean>(false);
     let user = $state<User | null>(null);
     let guest = $state<boolean>(false);
+    
+    let username = $state<string | null>(null);
+
+    let nextAllowedAt = $state<Date | null>(null);
+
+    let now = $state(new Date());
+
+    $effect(() => {
+        const interval = setInterval(() => {
+            now = new Date();
+        }, 1000);
+        return () => clearInterval(interval);
+    });
+
+    let countdown = $derived.by(() => {
+        if (!nextAllowedAt) return null;
+
+        const diff = nextAllowedAt.getTime() - now.getTime();
+
+        if (diff <= 0) {
+            nextAllowedAt = null;
+            return null;
+        }
+
+        const hours   = Math.floor(diff / 1000 / 60 / 60);
+        const minutes = Math.floor(diff / 1000 / 60) % 60;
+        const seconds = Math.floor(diff / 1000) % 60;
+
+        return `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+    });
+
 
     supabase.auth.getUser().then(async ({ data }) => {
         const authUser = data.user;
@@ -49,8 +89,15 @@
 
             if (profile) {
                 user = authUser; 
+
+                const { allowed, nextTime } = await getGenerationAvailable(authUser.id);
+                
+                if (!allowed) nextAllowedAt = nextTime;
+
+                const u = await getUsername(authUser.id);
+
+                username = u;
             }
-           
         }
         loaded = true;
     });
@@ -76,8 +123,24 @@
         setTimeout(randomizeBackdrop, 150);
     }
 
+    let checking = $state<boolean>(false);
+
     async function generateWord() {
-        if (generated) return;
+        if (generated || checking) return;
+
+        checking = true; // prevent double requests (spam clicking)
+
+        if (user) {
+            const { allowed, nextTime } = await getGenerationAvailable(user.id);
+        
+            if (!allowed) {
+                nextAllowedAt = nextTime;
+                checking = false;
+                return;
+            }
+        }
+
+        checking = false;
 
         try {
             await word.init();
@@ -134,29 +197,61 @@
         setTimeout(generateAnim, WORD_GENERATE_TIME / word.getWord().length);
     }
 
-    async function saveResult(word: Word) {
-        const { data: { user } } = await supabase.auth.getUser();
-        if (!user) return;
+    $effect(() => {
+        if (user && propertiesGenerated) {
+            saveWordResult(user.id, word);
+        }
+    });
 
-        await supabase.from('word_history').insert({
-            user_id: user.id,
-            word: word.getWord(),
-            color: word.getColor()
-        });
+    let checked = $state<boolean>(false);
+        
 
-        const rows = word.getProperties().map(p => ({
-            user_id: user.id,
-            property_id: p.id,
-        }));
+    $effect(() => {
+        user;
 
-        await supabase.from('property_history').upsert(rows, {
-            onConflict: 'user_id,property_id',
-            ignoreDuplicates: true
-        });
+        const currentChecked = checked;
+        const currentUser = user;
+
+        if (currentUser && !currentChecked) {
+            (async () => { 
+                const { allowed, nextTime } = await getGenerationAvailable(currentUser.id)
+        
+            if (!allowed) {
+                nextAllowedAt = nextTime;
+                return;
+            }})();
+        }
+
+        checked = true;
+    });
+
+    async function share() {
+        if (!shareElement) return;
+
+        try {
+            const blob = await toBlob(shareElement);
+
+            if (blob) {
+                const item = new ClipboardItem({ 'image/png': blob });
+                await navigator.clipboard.write([item]);
+                alert('Image copied to clipboard!');
+            }
+        } catch (error) {
+            console.error('Oops, something went wrong!', error);
+        }
     }
 
 
 </script>
+
+{#if loaded}
+    <Header 
+        username={username}
+        user={user}
+        login={() => { guest = false }}
+        logout={logout}
+    />
+{/if}
 
 {#if !user && !guest && loaded}
     <Login oncontinue={() => guest = true} oncomplete={(u) => user = u}/>
@@ -169,15 +264,9 @@
                     word-of-the-day
                 </header>
 
-                <button onclick={generateWord} class="roll">
-                    generate
+                <button onclick={generateWord} class="roll" disabled={nextAllowedAt !== null}>
+                    {nextAllowedAt === null ? `generate` : `${countdown || 'err'}`}
                 </button>
-
-                {#if guest}
-                    <button class="guest-sn" onclick={() => guest = false}>
-                        sign in
-                    </button>
-                {/if}
             </div>
         {/if}
         {#if generating || generated}
@@ -212,6 +301,10 @@
                     {/if}
                 </div>
 
+                <button class="share" onclick={share}>
+                    share
+                </button>
+
 
             </div>
             
@@ -227,6 +320,16 @@
                 {/if}
             </div>
         {/if}
+
+        {#if propertiesGenerated && word && username}
+            <div class="card-view" bind:this={shareElement}>
+                <Wordcard 
+                    word={word}
+                    user={username}
+                    date={new Date()}
+                />
+            </div>
+        {/if}
     </div>
 {:else}
     <div class="loading">
@@ -236,6 +339,11 @@
 
 <style lang="scss"> 
     @use "sass:list";
+
+    .card-view {
+        position: absolute;
+        left: 10000px; // yeah cheap trick whatever lol
+    }
 
     .loading {
         align-self: center;
@@ -316,23 +424,8 @@
         width: fit-content;
         padding: var(--margin);
         
-    }
-
-    .guest-sn {
-        cursor: pointer;
-        user-select: none;
-        border: var(--border);
-        background-color: var(--border-col);
-        color: #fff;
-        padding: 4px;
-        font-family: "GeistMono";
-        font-size: 0.9rem;
-        width: fit-content;
-        transition: all 0.1s ease-in-out;
-
-        &:hover {
-            color: var(--border-col);
-            background-color: var(--bg-l);
+        &:disabled {
+            cursor: not-allowed;
         }
     }
 

@@ -1,33 +1,65 @@
 <script lang="ts">
+    import { goto } from "$app/navigation";
     import Wordcard from "$lib/components/wordcard.svelte";
+    import { getUsername, getUserWords, type WordHistory } from "$lib/data/wordHistory";
+    import { supabase } from "$lib/supabase";
     import { Word } from "$lib/types";
+    import type { User } from "@supabase/supabase-js";
+
+    let loaded = $state<boolean>(false);
+    let user = $state<User | null>(null);
+    let username = $state<string | null>(null);
+
+    let wordhistory = $state<WordHistory[] | null>(null);
+
+    supabase.auth.getUser().then(async ({ data }) => {
+        const authUser = data.user;
+        if (authUser) {
+            const { data: profile } = await supabase
+                .from("profiles")
+                .select("id")
+                .eq("id", authUser.id)
+                .single();
+
+            if (profile) {
+                user = authUser; 
+            }
+
+            wordhistory = await getUserWords(authUser.id);
+            username = await getUsername(authUser.id);
+        } else {
+            goto("/");
+        }
+        loaded = true;
+    });
 
 
-
-    // TESTING VARIABLES
-    const user = "miniaturity";
-    const bg = "#ff3381";
-    const date = "05/03/26"
-
-    const words: Word[] = [new Word("dragoning"), 
-        new Word("crypt"),
-        new Word("class"),
-        new Word("ae")
-    ] 
-
-    const props = {
-        user,
-        date
-    }
+    
 </script>
 
+<button class="back" onclick={() => goto("/")}>
+    back
+</button>
+
 <div class="cards">
-    {#each words as word}
-        <Wordcard {...props} {word} />
-    {/each}
+    <div class="card-grid">
+        {#each wordhistory as card, i}
+            <Wordcard 
+                word={new Word(card.word, card.color)}
+                user={username || "err"}
+                date={new Date(card.generated_at)}
+            />
+        {/each}
+    </div>
+
+    <div class="card-inspector">
+
+    </div>
 </div>
 
 <style lang="scss">
+    @use "sass:list";
+
     :global(body) {
         padding: 0; margin: var(--margin);
         width: 100vw; height: 100vh;
@@ -35,14 +67,68 @@
         background-color: var(--bg);
 
         display: flex;
-        align-items: center;
-        justify-content: center;
         overflow-x: hidden;
+    }
+
+
+    @property --rotation {
+        syntax: "<angle>";
+        inherits: false;
+        initial-value: 0deg;
+    }
+
+    @keyframes rotate {
+        to {
+            --rotation: 360deg;
+        }
+    }
+
+    @mixin backlight($selector, $colors...) {
+        $gradient-colors: if(sass(list.length($colors) > 0): $colors; else: (purple, blue, green, yellow, orange, red));
+        
+        #{$selector} {
+            position: relative;
+            
+            &:before {
+                content: "";
+                display: block;
+                background: conic-gradient(from var(--rotation), $gradient-colors...);
+                filter: blur(20px);
+                opacity: 0.5;
+                position: absolute;
+                inset: -4px;
+                z-index: -2;
+                animation: rotate 5s linear infinite;
+                transition: all 0.3s ease-in-out;
+            }
+        }
+    }
+
+    @include backlight(".back");
+    .back {
+        position: absolute;
+        top: 12px;
+        right: 12px;
+
+        border: var(--border);
+        font-family: "GeistMono";
+        padding: 4px;
+        background: var(--bg-l);
+        cursor: pointer;
+        font-size: 1.5rem;
+
+    }
+
+    .card-grid {
+        display: flex;
+        flex-grow: 1;
+
     }
 
     .cards {
         display: flex;
         flex-direction: row;
         gap: 12px;
+        flex-grow: 1;
     }
 </style>

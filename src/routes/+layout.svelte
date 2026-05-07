@@ -9,6 +9,7 @@
 	<link rel="icon" href={favicon} />
 </svelte:head>
 
+
 {@render children()}
 
 <style lang="scss">
@@ -27,6 +28,12 @@
         --font-header: clamp(36px, 3.5vw, 80px);
         --font-title: clamp(18px, 2vw, 60px);
         --font-regular: clamp(14px, 0.7vw, 20px);
+
+        scrollbar-width: none;
+        -ms-overflow-style: none;
+        &::-webkit-scrollbar {
+            display: none;
+        }
     }
 
 	@font-face {

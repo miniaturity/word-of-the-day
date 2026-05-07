@@ -9,7 +9,7 @@
     }: {
         word: Word,
         user: string,
-        date: string
+        date: Date
     } = $props();
     
     let properties = $derived<Property[]>([...word.getProperties()].sort((a, b) => b.score - a.score));
@@ -104,7 +104,7 @@
             <div class="wc-properties">
                 <div class="wc-stat">
                     <span>{user}</span>
-                    <span>{date}</span>
+                    <span>{date.toLocaleDateString('en-US')}</span>
                 </div>
 
                 <div class="wc-list">

@@ -26,6 +26,7 @@
 		"@supabase/supabase-js": "^2.105.1",
 		"geist": "^1.7.0",
 		"geist-svelte": "^1.0.2",
-		"hover-tilt": "^1.0.0"
+		"hover-tilt": "^1.0.0",
+		"html-to-image": "^1.11.13"
 	}
 }

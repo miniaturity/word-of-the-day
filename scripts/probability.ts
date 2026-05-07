@@ -39,4 +39,13 @@ function getProbability(rule: (word: string) => boolean): void {
     console.log("PROBABILITY: " + (success / entryCount * 100));
 }
 
-getProbability((word: string) => word === "gold");
+getProbability((word: string) => {
+            const alpha = 'abcdefghijklm';
+
+            for (let i = 0; i < word.length; i++) {
+                if (alpha.includes(word[i])) return false;
+            }
+
+            return true;
+        }
+    );
