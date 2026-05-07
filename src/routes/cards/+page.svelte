@@ -127,6 +127,8 @@
 
     .card-grid {
         display: flex;
+        flex-direction: row;
+        gap: 12px;
         flex-grow: 1;
 
     }
