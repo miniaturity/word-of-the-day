@@ -112,7 +112,8 @@
                 </div>
 
                 <div class="wc-list">
-                    {#each { length: 4 } as _, i}
+                    
+                    {#each { length: Math.min(4, properties.length) } as _, i}
                     <div class="wcl-property" style={`--p-rar: ${RARITY_COLOR[getRarity(properties[i].probability)][0]}`}>
                         <div class="wclp-up">
                             <div class="wclp-icon">
