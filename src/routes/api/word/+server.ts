@@ -1,12 +1,16 @@
 import { json } from '@sveltejs/kit';
 import { readFileSync, openSync, readSync, closeSync } from 'fs';
-import { resolve } from 'path';
+import { fileURLToPath } from 'url';
+import { dirname, join } from 'path';
 import { randomInt } from 'crypto';
 import type { RequestHandler } from './$types';
 
 export const config = {
     runtime: 'nodejs22.x',
-    includeFiles: ['data/dict.index', 'data/dict.ndjson']
+    includeFiles: [
+        'src/routes/api/word/dict.index',
+        'src/routes/api/word/dict.ndjson'
+    ]
 };
 
 interface DictionaryWord {
@@ -15,8 +19,9 @@ interface DictionaryWord {
     definition: string;
 }
 
-const INDEX_PATH = resolve(process.cwd(), 'data/dict.index');
-const NDJSON_PATH = resolve(process.cwd(), 'data/dict.ndjson');
+const __dirname = dirname(fileURLToPath(import.meta.url));
+const INDEX_PATH = join(__dirname, 'dict.index');
+const NDJSON_PATH = join(__dirname, 'dict.ndjson');
 
 const indexBuffer = readFileSync(INDEX_PATH);
 const entryCount = indexBuffer.byteLength / 4;
