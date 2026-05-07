@@ -952,6 +952,35 @@ export const PROPERTIES: Property[] = [
                 [word.indexOf(" ")]: {}
             }
         }
+    },
+    {
+        id: 37,
+        name: "j",
+        desc: "contains the letter j",
+        icon: "🏢",
+        probability: 1.3,
+        score: 55060,
+        
+        applicable: (word: string) => word.includes("j"),
+        highlight: (word: string) => {
+            const highlights: Record<number, Highlight> = {};
+
+            for (let i = 0; i < word.length; i++) {
+                if (word[i] === "j") highlights[i] = {};
+            }
+
+            return highlights;
+        },
+        // {
+        //     id: 38,
+        //     name: "meta",
+        //     desc: "is a property name",
+        //     icon: "🖥️",
+        //     probability: 0,
+        //     score: 99000
+        // },
+       
+
     }
     
 ]

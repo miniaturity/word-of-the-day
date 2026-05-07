@@ -39,4 +39,14 @@ function getProbability(rule: (word: string) => boolean): void {
     console.log("PROBABILITY: " + (success / entryCount * 100));
 }
 
-getProbability((word: string) => word.includes(" "));
+getProbability((word: string) => {
+    let streak = 0, maxStreak = 0;
+
+    for (let i = 1; i < word.length; i++) {
+        if (streak > maxStreak) maxStreak = streak;
+        if (word[i - 1] === word[i]) streak++;
+        else streak = 0;
+    }
+
+    return maxStreak === 3;
+});
