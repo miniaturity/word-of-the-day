@@ -2,9 +2,14 @@
 import { json } from '@sveltejs/kit';
 import { readFileSync, openSync, readSync, closeSync } from 'fs';
 import { fileURLToPath } from 'url';
-import { resolve, dirname } from 'path';
+import { dirname, resolve } from 'path';
 import { randomInt } from 'crypto';
 import type { RequestHandler } from './$types';
+
+export const config = {
+    runtime: 'nodejs22.x',
+    includeFiles: ['src/lib/data/dict.index', 'src/lib/data/dict.ndjson']
+};
 
 interface DictionaryWord {
     word: string;
@@ -14,23 +19,24 @@ interface DictionaryWord {
 
 const dataDir = dirname(fileURLToPath(import.meta.url));
 
-// ...gulp
-const indexBuffer = readFileSync(resolve(dataDir, '../../../lib/data/dict.index'));
-const entryCount = indexBuffer.byteLength / 4;
+function getDataPath(filename: string): string {
+    return resolve(dataDir, '../../../lib/data/', filename);
+}
 
 function readEntry(i: number): DictionaryWord {
-    const fd = openSync(resolve(dataDir, '../../../lib/data/dict.ndjson'), 'r');
+    const indexBuffer = readFileSync(getDataPath('dict.index'));
+    const entryCount = indexBuffer.byteLength / 4;
+
+    const fd = openSync(getDataPath('dict.ndjson'), 'r');
 
     try {
         const offset = indexBuffer.readUInt32LE(i * 4);
-
         const nextOffset = i + 1 < entryCount
             ? indexBuffer.readUInt32LE((i + 1) * 4)
             : offset + 512;
 
         const length = nextOffset - offset;
         const buffer = Buffer.alloc(length);
-
         readSync(fd, buffer, 0, length, offset);
 
         return JSON.parse(buffer.toString('utf-8').trimEnd());
@@ -40,12 +46,10 @@ function readEntry(i: number): DictionaryWord {
 }
 
 export const GET: RequestHandler = () => {
+    const indexBuffer = readFileSync(getDataPath('dict.index'));
+    const entryCount = indexBuffer.byteLength / 4;
+
     const i = randomInt(0, entryCount);
     const entry = readEntry(i);
     return json(entry);
-};
-
-export const config = {
-    runtime: 'nodejs22.x',
-    includeFiles: ['src/lib/data/dict.index', 'src/lib/data/dict.ndjson']
 };
