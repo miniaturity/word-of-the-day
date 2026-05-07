@@ -6,7 +6,7 @@ import type { RequestHandler } from './$types';
 
 export const config = {
     runtime: 'nodejs22.x',
-    includeFiles: ['src/lib/data/dict.index', 'src/lib/data/dict.ndjson']
+    includeFiles: ['data/dict.index', 'data/dict.ndjson']
 };
 
 interface DictionaryWord {
@@ -15,8 +15,8 @@ interface DictionaryWord {
     definition: string;
 }
 
-const INDEX_PATH = resolve(process.cwd(), 'src/lib/data/dict.index');
-const NDJSON_PATH = resolve(process.cwd(), 'src/lib/data/dict.ndjson');
+const INDEX_PATH = resolve(process.cwd(), 'data/dict.index');
+const NDJSON_PATH = resolve(process.cwd(), 'data/dict.ndjson');
 
 const indexBuffer = readFileSync(INDEX_PATH);
 const entryCount = indexBuffer.byteLength / 4;
