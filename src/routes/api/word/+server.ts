@@ -1,16 +1,12 @@
 import { json } from '@sveltejs/kit';
 import { readFileSync, openSync, readSync, closeSync } from 'fs';
-import { fileURLToPath } from 'url';
-import { dirname, join } from 'path';
+import { resolve } from 'path';
 import { randomInt } from 'crypto';
 import type { RequestHandler } from './$types';
 
 export const config = {
     runtime: 'nodejs22.x',
-    includeFiles: [
-        'src/routes/api/word/dict.index',
-        'src/routes/api/word/dict.ndjson'
-    ]
+    includeFiles: ['data/dict.index', 'data/dict.ndjson']
 };
 
 interface DictionaryWord {
@@ -19,19 +15,21 @@ interface DictionaryWord {
     definition: string;
 }
 
-const __dirname = dirname(fileURLToPath(import.meta.url));
-const INDEX_PATH = join(__dirname, 'dict.index');
-const NDJSON_PATH = join(__dirname, 'dict.ndjson');
+let indexBuffer: Buffer | null = null;
+let entryCount = 0;
 
-const indexBuffer = readFileSync(INDEX_PATH);
-const entryCount = indexBuffer.byteLength / 4;
+function init() {
+    if (indexBuffer) return;
+    indexBuffer = readFileSync(resolve(process.cwd(), 'data/dict.index'));
+    entryCount = indexBuffer.byteLength / 4;
+}
 
 function readEntry(i: number): DictionaryWord {
-    const fd = openSync(NDJSON_PATH, 'r');
+    const fd = openSync(resolve(process.cwd(), 'data/dict.ndjson'), 'r');
     try {
-        const offset = indexBuffer.readUInt32LE(i * 4);
+        const offset = indexBuffer!.readUInt32LE(i * 4);
         const nextOffset = i + 1 < entryCount
-            ? indexBuffer.readUInt32LE((i + 1) * 4)
+            ? indexBuffer!.readUInt32LE((i + 1) * 4)
             : offset + 512;
         const buffer = Buffer.alloc(nextOffset - offset);
         readSync(fd, buffer, 0, buffer.length, offset);
@@ -43,8 +41,8 @@ function readEntry(i: number): DictionaryWord {
 
 export const GET: RequestHandler = () => {
     try {
-        const i = randomInt(0, entryCount);
-        return json(readEntry(i));
+        init();
+        return json(readEntry(randomInt(0, entryCount)));
     } catch (err) {
         console.error('[api/word] error:', err);
         return json({ error: String(err) }, { status: 500 });
