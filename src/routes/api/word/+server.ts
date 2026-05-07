@@ -1,9 +1,8 @@
 // src/routes/api/word/+server.ts
 import { json } from '@sveltejs/kit';
 import { readFileSync, openSync, readSync, closeSync } from 'fs';
-import { fileURLToPath } from 'url';
-import { dirname, resolve } from 'path';
 import { randomInt } from 'crypto';
+import { resolve } from 'path';
 import type { RequestHandler } from './$types';
 
 export const config = {
@@ -17,10 +16,9 @@ interface DictionaryWord {
     definition: string;
 }
 
-const dataDir = dirname(fileURLToPath(import.meta.url));
 
 function getDataPath(filename: string): string {
-    return resolve(dataDir, '../../../lib/data/', filename);
+    return resolve(process.cwd(), 'src/lib/data/', filename);
 }
 
 function readEntry(i: number): DictionaryWord {
