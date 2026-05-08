@@ -11,6 +11,9 @@
         property: Property
     } = $props();
 
+    let windowWidth = $state<number>(0);
+    let smallScreen = $derived<boolean>(windowWidth <= 480);
+
     let highlights = $derived<Record<number, Highlight> | undefined>(property.highlight?.(word.getWord()));
     let rarity = $derived<Rarity>(getRarity(property.probability));
     
@@ -20,9 +23,11 @@
     };
 </script>
 
+<svelte:window bind:innerWidth={windowWidth} />
+
 <Holocard condition={SHINY[(getRarity(property.probability))] !== undefined} 
 holoImage={SHINY[(getRarity(property.probability))]}
-extraordinary={rarity=== "extraordinary"}
+asHover={!smallScreen}
 >
     <div class={`property`} 
     style={`--backlight-color: ${RARITY_COLOR[rarity].join(", ")};
@@ -69,6 +74,13 @@ extraordinary={rarity=== "extraordinary"}
 <style lang="scss">
     @use "sass:list";
 
+    $phone-width: 480px;
+    @mixin phone() {
+        @media (max-width: $phone-width) {
+            @content;
+        }
+    }
+
     @property --rotation {
         syntax: "<angle>";
         inherits: false;
@@ -107,7 +119,7 @@ extraordinary={rarity=== "extraordinary"}
     .property {
         --pad: 4px;
         --d-pad: 8px;
-        --width: clamp(400px, 40vw, 600px);
+        --width: clamp(300px, 40vw, 600px);
         display: flex;
         flex-direction: column;
         font-family: "GeistMono";
@@ -120,6 +132,9 @@ extraordinary={rarity=== "extraordinary"}
             opacity: 1;
         }
 
+        @include phone {
+            font-size: 0.8rem;
+        }
     }
 
     .p-title {
@@ -212,6 +227,8 @@ extraordinary={rarity=== "extraordinary"}
         display: flex;
         flex-direction: row;
         gap: 4px;
+
+        overflow: hidden;
     }
 
     .pd-desc {

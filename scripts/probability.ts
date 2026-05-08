@@ -41,7 +41,22 @@ function getProbability(rule: (word: string) => boolean): void {
     console.log("PROBABILITY: " + (success / entryCount * 100));
 }
 
-getProbability((word: string) => /([a-z])(?=(?:.*?\1){3})/.test(word));
+getProbability((word: string) => {
+            const COLORS = [
+                "red",
+                "yellow",
+                "green",
+                "blue",
+                "orange",
+                "purple"
+            ]
+
+            for (const c of COLORS) {
+                if (word.includes(c)) return true;
+            }
+
+            return false;
+        });
 
 function isPropertyName(name: string) {
     const pnames = PROPERTIES.map(p => p.name);

@@ -6,16 +6,18 @@
         children,
         condition,
         holoImage,
-        extraordinary
+        extraordinary,
+        asHover = true
     }: {
         children?: Snippet,
         condition: boolean,
         holoImage?: string,
-        extraordinary?: boolean
+        extraordinary?: boolean,
+        asHover?: boolean,
     } = $props();
 </script>
 
-{#if condition && children}
+{#if condition && children && asHover}
     <HoverTilt 
     springOptions={{ stiffness: 0.3 }} 
     glareIntensity={1}
@@ -26,7 +28,7 @@
     >
         {@render children()}
     </HoverTilt>
-{:else if children}
+{:else if children && asHover}
 
     <HoverTilt
         springOptions={{ stiffness: 0.3 }} 
@@ -35,6 +37,9 @@
     >
         {@render children()}
     </HoverTilt>
+
+{:else if children}
+    {@render children()}
 {/if}
 
 <style lang="scss">

@@ -124,10 +124,7 @@ export const PROPERTIES: Property[] = [
                 "rodent",
                 "avian",
                 "aquatic",
-                "dinosaur",
-                "pokemon",
-                "big cat",
-                "awwkitty"
+                "dinosaur"
             ]
 
             for (const fur of furries) {
@@ -224,7 +221,7 @@ export const PROPERTIES: Property[] = [
                 "Hf", "Ta", "Re", "Os", "Ir", "Pt", "Au", "Hg",
                 "Tl", "Pb", "Bi", "Po", "At", "Rn",
                 "Fr", "Ra",
-                "Ac", "Th", "Pa", "U", "Np", "Pu", "Am", "Cm", "Bk", "Cf", "Es", "Fm", "Md", "No", "Lr",
+                "Ac", "Th", "Pa", "Np", "Pu", "Am", "Cm", "Bk", "Cf", "Es", "Fm", "Md", "No", "Lr",
                 "Rf", "Db", "Sg", "Bh", "Hs", "Mt", "Ds", "Rg", "Cn",
                 "Nh", "Fl", "Mc", "Lv", "Ts", "Og"
             ];
@@ -251,19 +248,18 @@ export const PROPERTIES: Property[] = [
                 "Hf", "Ta", "Re", "Os", "Ir", "Pt", "Au", "Hg",
                 "Tl", "Pb", "Bi", "Po", "At", "Rn",
                 "Fr", "Ra",
-                "Ac", "Th", "Pa", "U", "Np", "Pu", "Am", "Cm", "Bk", "Cf", "Es", "Fm", "Md", "No", "Lr",
+                "Ac", "Th", "Pa", "Np", "Pu", "Am", "Cm", "Bk", "Cf", "Es", "Fm", "Md", "No", "Lr",
                 "Rf", "Db", "Sg", "Bh", "Hs", "Mt", "Ds", "Rg", "Cn",
                 "Nh", "Fl", "Mc", "Lv", "Ts", "Og"
             ];
 
             let element: string = "He";
-            let wordRef: string = word;
 
             for (const e of ELEMENT_SYMBOLS) {
-                if (word.includes(e.toLowerCase())) element = e;
+                if (word.includes(e.toLowerCase())) element = e.toLowerCase();
             }
 
-            for (let i = wordRef.indexOf(element); i < element.length; i++) {
+            for (let i = word.indexOf(element); i < word.indexOf(element) + 2; i++) {
                 highlights[i] = {};
             }
 
@@ -322,7 +318,7 @@ export const PROPERTIES: Property[] = [
         desc: "contains the character x",
         probability: 2.4,
         icon: "❎",
-        score: 14444,
+        score: 18444,
 
         applicable: (word: string) => word.includes("x"),
         highlight: (word: string) => {
@@ -377,7 +373,7 @@ export const PROPERTIES: Property[] = [
         desc: "contains the character q",
         probability: 1.6,
         icon: "⁉️",
-        score: 32000,
+        score: 42000,
 
         applicable: (word: string) => word.includes("q"),
         highlight: (word: string) => {
@@ -654,7 +650,7 @@ export const PROPERTIES: Property[] = [
         desc: "letters are organized alphabetically",
         icon: "🔤",
         probability: 1.1,
-        score: 31200,
+        score: 69200,
 
         applicable: (word: string) => {
             for (let i = 0; i < word.length - 1; i++) {
@@ -889,7 +885,7 @@ export const PROPERTIES: Property[] = [
         desc: "there are more vowels than consonants",
         icon: "🎚️",
         probability: 4.77,
-        score: 23400,
+        score: 13400,
 
         applicable: (word: string) => {
             const vowels = "aeiou";
@@ -1266,9 +1262,118 @@ export const PROPERTIES: Property[] = [
 
             return highlights;
         }
+    },
+    {
+        id: 50,
+        name: "snake",
+        desc: "contains 3 or more of the letter s",
+        icon: "🐍",
+        probability: 0.16,
+        score: 109999,
+
+        applicable: (word: string) => /(s)(?=(?:.*?\1){3})/.test(word),
+        highlight: (word: string) => {
+            const char = "s";
+            const indices: number[] = [];
+            let index = word.indexOf(char);
+            
+            while (index !== -1) {
+                indices.push(index);
+                index = word.indexOf(char, index + 1);
+            }
+
+            const highlights: Record<number, Highlight> = {};
+            for (let i = 0; i < indices.length; i++) {
+                highlights[indices[i]] = {};
+            }
+
+            return highlights;
+        }
+    },
+    {
+        id: 51,
+        name: "double hockey sticks",
+        desc: "contains two adjacent letters (l)",
+        icon: "👿",
+        probability: 4.1,
+        score: 14300,
+
+        applicable: (word: string) => word.includes("ll"),
+        highlight: (word: string) => ({
+            [word.indexOf("ll")]: {},
+            [word.indexOf("ll") + 1]: {}
+        })
+    },
+    {
+        id: 52,
+        name: "study",
+        desc: "contains the suffix '-ology'",
+        icon: "📕",
+        probability: 0.21,
+        score: 100000,
+
+        applicable: (word: string) => word.endsWith("ology"),
+        highlight: (word: string) => {
+            const highlights: Record<number, Highlight> = {};
+            const w = "ology";
+            for (let i = 0; i < w.length; i++) {
+                highlights[word.length - i - 1] = {};   
+            }
+            return highlights;
+        }
+    },
+    {
+        id: 53,
+        name: "colorful",
+        desc: "contains a primary or secondary color as a substring",
+        icon: "🟪",
+        probability: 1,
+        score: 70001,
+
+        applicable: (word: string) => {
+            const COLORS = [
+                "red",
+                "yellow",
+                "green",
+                "blue",
+                "orange",
+                "purple"
+            ]
+
+            for (const c of COLORS) {
+                if (word.includes(c)) return true;
+            }
+
+            return false;
+        },
+
+        highlight: (word: string) => {
+            const COLORS = [
+                "red",
+                "yellow",
+                "green",
+                "blue",
+                "orange",
+                "purple"
+            ]
+
+            let col = "red";
+            for (const c of COLORS) {
+                if (word.includes(c)) col = c;
+            }
+
+            const highlights: Record<number, Highlight> = {};
+            const index = word.indexOf(col);
+            for (let i = index; i < col.length; i++) {
+                highlights[i] = {};
+            }
+            return highlights;
+        }
+
     }
     
 ]
+
 
 function isPropertyName(name: string) {
     const pnames = PROPERTIES.map(p => p.name);
