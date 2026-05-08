@@ -107,7 +107,7 @@ extraordinary={rarity=== "extraordinary"}
     .property {
         --pad: 4px;
         --d-pad: 8px;
-        --width: clamp(200px, 40vw, 600px);
+        --width: clamp(400px, 40vw, 600px);
         display: flex;
         flex-direction: column;
         font-family: "GeistMono";

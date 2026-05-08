@@ -24,7 +24,7 @@
         --pts-col: #52fdbb;
         --pts-col-bor: #02b671;
 
-        --page-width: clamp(300px, 100vw, 800px);
+        --page-width: clamp(400px, 100vw, 800px);
         --font-logo: clamp(36px, 5vw, 100px);
         --font-header: clamp(36px, 3.5vw, 80px);
         --font-title: clamp(18px, 2vw, 60px);

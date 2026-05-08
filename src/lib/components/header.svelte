@@ -52,6 +52,13 @@
 <style lang="scss">
     @use "sass:list";
 
+    $phone-width: 480px;
+    @mixin phone() {
+        @media (max-width: $phone-width) {
+            @content;
+        }
+    } 
+
     .hidden {
         visibility: hidden;
     }
@@ -59,7 +66,7 @@
     .hu-confirm {
         position: absolute;
         top: 0; left: 0;
-        width: 100%; height: 100%;
+        height: 100%;
         display: none;
 
         background-color: rgba(255, 255, 255, 0.3); 
@@ -140,6 +147,11 @@
             text-decoration: none;
             color: #000;
         }
+
+        @include phone {
+            width: 100%;    
+            justify-content: space-between;
+        }
     }    
 
     .h-title {
@@ -148,6 +160,10 @@
 
         text-decoration: none;
         color: #000;
+
+        @include phone {
+            display: none;
+        }
     }
 
     .h-username {
@@ -159,6 +175,8 @@
         cursor: pointer;
         color: #000;
         font-size: inherit;
+
+       
     }
 
 </style>

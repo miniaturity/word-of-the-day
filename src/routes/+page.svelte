@@ -368,6 +368,7 @@
         {/if}
 
         {#if generated}
+
             <div class="properties" class:show={generated}>
                 {#if word}
                     {#each visibleProperties as prop (prop.id)}
@@ -375,6 +376,7 @@
                     {/each}
                 {/if}
             </div>
+            
         {/if}
     </div>
 {:else}
