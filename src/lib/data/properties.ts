@@ -272,7 +272,7 @@ export const PROPERTIES: Property[] = [
     },
     {
         id: 10,
-        name: "adjacent (pair)",
+        name: "pair: adjacent",
         desc: "contains an adjacent pair of characters",
         probability: 20,
         icon: "👯‍♀️",
@@ -341,11 +341,11 @@ export const PROPERTIES: Property[] = [
         desc: "contains three of the same character",
         probability: 13.3,
         icon: "👩‍👧‍👦",
-        score: 5333,
+        score: 4333,
 
         applicable: (word: string) => /([a-z])(?=(?:.*?\1){2})/.test(word),
 
-       highlight: (word: string) => {
+        highlight: (word: string) => {
             const seen: Record<string, number[]> = {};
             let indices: number[] = [];
 
@@ -654,7 +654,7 @@ export const PROPERTIES: Property[] = [
         desc: "letters are organized alphabetically",
         icon: "🔤",
         probability: 1.1,
-        score: 123000,
+        score: 31200,
 
         applicable: (word: string) => {
             for (let i = 0; i < word.length - 1; i++) {
@@ -970,17 +970,307 @@ export const PROPERTIES: Property[] = [
             }
 
             return highlights;
-        },
-        // {
-        //     id: 38,
-        //     name: "meta",
-        //     desc: "is a property name",
-        //     icon: "🖥️",
-        //     probability: 0,
-        //     score: 99000
-        // },
-       
+        }
+    },
+    {
+        // NOTE: subject to change in probability
+        id: 38,
+        name: "meta",
+        desc: "is the name of a property",
+        icon: "💻",
+        probability: 0.12,
+        score: 131000,
 
+        applicable: (word: string) => isPropertyName(word)
+    },
+    {
+        id: 39,
+        name: "bookends",
+        desc: "starts and ends with the same character",
+        icon: "📖",
+        probability: 4.68,
+        score: 12021,
+
+        applicable: (word: string) => {
+            const s = word[0], e = word[word.length - 1];
+
+            return s === e;
+        },
+
+        highlight: (word: string) => ({
+            [word[0]]: {},
+            [word[word.length - 1]]: {}
+        })
+    },
+    {
+        id: 40,
+        name: "mirrored",
+        desc: "the second half of the word is the first half reversed",
+        icon: "🪩",
+        probability: 0.02,
+        score: 360063,
+
+        applicable: (word: string) => {
+            const a = word.substring(0, word.length / 2);
+            const b = word.substring(word.length / 2, word.length).split("").reverse().join("");
+        
+            return a === b;
+        }
+    },
+    {
+        id: 41,
+        name: "coordinate",
+        desc: "contains the letters x and y",
+        icon: "📊",
+        probability: 0.4,
+        score: 106700,
+
+        applicable: (word: string) => word.includes("x") && word.includes("y"),
+        highlight: (word: string) => ({
+            [word.indexOf("x")]: {},
+            [word.indexOf("y")]: {}
+        })
+    },
+    {
+        id: 42,
+        name: "flat",
+        desc: "contains 4 or less unique characters",
+        icon: "🫓",
+        probability: 14.85,
+        score: 3560,
+
+        applicable: (word: string) => {
+            let seen: Set<string> = new Set<string>();
+
+            for (let i = 0; i < word.length; i++) {
+                if (!seen.has(word[i])) seen.add(word[i]);
+            }
+
+            return seen.size <= 4;
+        }
+    },
+    {
+        id: 43,
+        name: "medley",
+        desc: "contains 10 or more unique characters",
+        icon: "🥗",
+        probability: 7.3,
+        score: 6000,
+
+        applicable: (word: string) => {
+            let seen: Set<string> = new Set<string>();
+
+            for (let i = 0; i < word.length; i++) {
+                if (!seen.has(word[i])) seen.add(word[i]);
+            }
+
+            return seen.size >= 8;
+        }
+    },
+    {
+        id: 44,
+        name: "numerical prefix",
+        desc: "contains a numerical prefix",
+        icon: "1️⃣",
+        probability: 1.2,
+        score: 57000,
+
+        applicable: (word: string) => {
+            const PREFIXES: string[] = [
+                "uni",
+                "bi",
+                "tri",
+                "quadri",
+                "quinque",
+                "sex",
+                "octo",
+                "nona",
+                "decem"
+            ];
+
+            for (const pre of PREFIXES) {
+                if (word.startsWith(pre)) return true;
+            }
+
+            return false;
+        },
+
+        highlight: (word: string) => {
+            const highlights: Record<number, Highlight> = {};
+            const PREFIXES: string[] = [
+                "uni",
+                "bi",
+                "tri",
+                "quadri",
+                "quinque",
+                "sex",
+                "octo",
+                "nona",
+                "decem"
+            ];
+
+            for (const pre of PREFIXES) {
+                if (word.startsWith(pre)) {
+                    for (let i = 0; i < pre.length; i++)
+                        highlights[i] = {};
+                }
+            }
+
+            return highlights;
+        }
+    },
+    {
+        id: 45,
+        name: "consonanter",
+        desc: "contains more consonants than vowels",
+        icon: "🧶",
+        probability: 80.25,
+        score: 500,
+
+        applicable: (word: string) => {
+            const consonants = "bcdfghjklmnpqrstvwxyz";
+            let ccount = 0, vcount = 0;
+        
+            for (let i = 0; i < word.length; i++) {
+                if (consonants.includes(word[i])) ccount++;
+                else vcount++;
+            }
+
+            return ccount > vcount;
+        }
+    },
+    {
+        id: 46,
+        name: "balanced",
+        desc: "contains an equal amount of vowels and consonants",
+        icon: "🟰",
+        probability: 14.28,
+        score: 4060,
+        
+        applicable: (word: string) => {
+            const consonants = "bcdfghjklmnpqrstvwxyz";
+            const vowels = "aeiou";
+            let ccount = 0, vcount = 0;
+
+            for (let i = 0; i < word.length; i++) {
+                if (consonants.includes(word[i])) {
+                    ccount++;
+                } else if (vowels.includes(word[i])) {
+                    vcount++;
+                }
+            }
+
+            return ccount === vcount;
+        }
+    },
+    {
+        id: 47,
+        name: "3D",
+        desc: "contains x, y and z, or three of the letter D.",
+        icon: "📦",
+        probability: 0.16,
+        score: 109000,
+
+        applicable: (word: string) => {
+            const xyz = word.includes("x") && word.includes("y") && word.includes("z");
+
+            let dcount = 0;
+            for (let i = 0; i < word.length; i++) {
+                if (word[i] === "d") dcount++;
+            }
+
+            return xyz || dcount === 3;
+        },
+
+        highlight: (word: string) => {
+            const xyz = word.includes("x") && word.includes("y") && word.includes("z");
+
+            let dcount = 0;
+            for (let i = 0; i < word.length; i++) {
+                if (word[i] === "d") dcount++;
+            }
+
+            if (xyz) {
+                return {
+                    [word.indexOf("x")]: {},
+                    [word.indexOf("y")]: {},
+                    [word.indexOf("z")]: {}
+                }
+            } else {
+                const highlights: Record<number, Highlight> = {};
+                const char = "d";
+                let indices: number[] = [];
+                let index = word.indexOf(char);
+  
+                while (index !== -1) {
+                    indices.push(index);
+                    index = word.indexOf(char, index + 1); // Start next search after current match
+                }
+
+                for (let i = 0; i < indices.length; i++) {
+                    highlights[indices[i]] = {};
+                }
+
+                return highlights;
+            }
+        }
+    },
+    {
+        id: 48,
+        name: "past",
+        desc: "contains the suffix '-ed'",
+        icon: "🫛",
+        probability: 5.7,
+        score: 8000,
+
+        applicable: (word: string) => word.endsWith("ed"),
+    },
+    {
+        id: 49,
+        name: "repetitive",
+        desc: "contains 4 or more of the same character",
+        icon: "🔂",
+        probability: 1.3,
+        score: 55067,
+
+        applicable: (word: string) => /([a-z])(?=(?:.*?\1){3})/.test(word),
+        highlight: (word: string) => {
+            const positions: Record<string, number[]> = {};
+
+            for (let i = 0; i < word.length; i++) {
+                const char = word[i];
+
+                if (!positions[char]) {
+                    positions[char] = [];
+                }
+
+                positions[char].push(i);
+            }
+
+            let result: number[] = [];
+            let maxCount = 0;
+
+            for (const char in positions) {
+                const indices = positions[char];
+
+                if (indices.length > maxCount) {
+                    maxCount = indices.length;
+                    result = indices;
+                }
+            }
+
+            const highlights: Record<number, Highlight> = {};
+            for (let i = 0; i < result.length; i++) {
+                highlights[result[i]] = {};
+            }
+
+            return highlights;
+        }
     }
     
 ]
+
+function isPropertyName(name: string) {
+    const pnames = PROPERTIES.map(p => p.name);
+    return pnames.includes(name);
+}

@@ -2,6 +2,8 @@ import { json } from '@sveltejs/kit';
 import { readFileSync, openSync, readSync } from 'fs';
 import { resolve } from 'path';
 
+import { PROPERTIES } from "../src/lib/data/properties";
+
 interface DictionaryWord {
     word: string;
     pos: string;
@@ -39,14 +41,9 @@ function getProbability(rule: (word: string) => boolean): void {
     console.log("PROBABILITY: " + (success / entryCount * 100));
 }
 
-getProbability((word: string) => {
-    let streak = 0, maxStreak = 0;
+getProbability((word: string) => /([a-z])(?=(?:.*?\1){3})/.test(word));
 
-    for (let i = 1; i < word.length; i++) {
-        if (streak > maxStreak) maxStreak = streak;
-        if (word[i - 1] === word[i]) streak++;
-        else streak = 0;
-    }
-
-    return maxStreak === 3;
-});
+function isPropertyName(name: string) {
+    const pnames = PROPERTIES.map(p => p.name);
+    return pnames.includes(name);
+}

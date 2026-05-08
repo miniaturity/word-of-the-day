@@ -3,7 +3,7 @@ import { PROPERTIES } from "./data/properties";
 
 export function getRarity(probability: number): Rarity {
     if (probability <= 0.001) return "extraordinary";
-    if (probability <= 0.1) return "legendary";
+    if (probability <= 1) return "legendary";
     if (probability <= 10) return "unique";
     if (probability <= 33) return "uncommon";
     return "ordinary";

@@ -175,8 +175,6 @@
         cursor: pointer;
         color: #000;
         font-size: inherit;
-
-       
     }
 
 </style>
