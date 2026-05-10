@@ -167,7 +167,7 @@
     }
 
     .extraordinary {
-        --bor: 3px solid #000;
+        --bor: 4px solid #000;
     }
 
     .wc-list {

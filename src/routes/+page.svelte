@@ -14,14 +14,12 @@
     import Wordcard from "$lib/components/wordcard.svelte";
 
     import { toBlob } from 'html-to-image';
-    import { goto } from "$app/navigation";
 
     const WORD_GENERATE_TIME = 5000;
 
     
 
     let word = $state<Word>(new Word());
-    let score = $derived(word?.getScore() || 0);
     let properties = $state<Property[]>([]);
     let visibleProperties = $state<Property[]>([]);
 
@@ -125,6 +123,8 @@
 
     let checking = $state<boolean>(false);
 
+    
+
     async function generateWord() {
         if (generated || checking || generating) return;
 
@@ -140,8 +140,6 @@
             }
         }
 
-        checking = false;
-
         try {
             await word.init();
         } catch (e) {
@@ -155,6 +153,7 @@
         visibleProperties = [];
 
         generating = true;
+        checking = false;
 
         await tick();
 
@@ -296,7 +295,6 @@
             user={username || "guest"}
             word={word}
             date={new Date()}
-            asHover={false}
             bind:ref={shareElement}
         />
     </div>
@@ -376,7 +374,7 @@
                     {/each}
                 {/if}
             </div>
-            
+
         {/if}
     </div>
 {:else}
@@ -390,7 +388,7 @@
 
     .share-card {
         position: absolute;
-        left: -1000px; // shhh they wont know......
+        left: -1500px; // shhh they wont know......
     }
 
     .loading {

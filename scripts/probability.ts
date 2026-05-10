@@ -42,20 +42,9 @@ function getProbability(rule: (word: string) => boolean): void {
 }
 
 getProbability((word: string) => {
-            const COLORS = [
-                "red",
-                "yellow",
-                "green",
-                "blue",
-                "orange",
-                "purple"
-            ]
-
-            for (const c of COLORS) {
-                if (word.includes(c)) return true;
-            }
-
-            return false;
+            if (word.length < 3) return false;
+            const a = word.substring(0, 2), b = word.substring(word.length - 2).split('').reverse().join('');
+            return a === b;
         });
 
 function isPropertyName(name: string) {

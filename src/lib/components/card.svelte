@@ -16,6 +16,7 @@
     } = $props();
 
     const TEXTURES_SHINY: Partial<Record<Rarity, string>> = {
+        ["unique"]: "",
         ["legendary"]: "https://poke-holo.b-cdn.net/foils/151/birthday-holo-dank-2.webp",
         ["extraordinary"]: "/images/chfoil.jpg"
     };
@@ -43,7 +44,7 @@
         </HoverTilt>
     {:else if rarity === "unique"}
         <HoverTilt {...standardProps} 
-            class="card"
+            class="unique card"
         >
             {@render children()}
         </HoverTilt>
@@ -71,6 +72,15 @@
 {/if}
 
 <style lang="scss">
+    :global(.unique) {
+        --hover-tilt-custom-gradient: linear-gradient(
+            120deg,
+            rgb(0 0 0 / 0) calc((var(--gradient-x, 50%) / 2 + var(--gradient-y, 50%) / 2) - 60%),
+            rgb(130 224 255 / var(--hover-tilt-glare-intensity, 1)) calc((var(--gradient-x, 50%) / 2 + var(--gradient-y, 50%) / 2)),
+            rgb(0 0 0 / 0) calc((var(--gradient-x, 50%) / 2 + var(--gradient-y, 50%) / 2) + 60%)
+        );
+    }
+
     :global(.legendary .hover-tilt::after) {
         --hover-tilt-custom-gradient: conic-gradient(
             from calc(var(--hover-tilt-angle, 0)) at center center,
@@ -100,6 +110,12 @@
     }
 
     :global(.extraordinary .hover-tilt::after) {
+        --hover-tilt-custom-gradient: linear-gradient(
+            120deg,
+            rgb(0 0 0 / 0) calc((var(--gradient-x, 50%) / 2 + var(--gradient-y, 50%) / 2) - 60%),
+            rgb(249 218 173 / var(--hover-tilt-glare-intensity, 1)) calc((var(--gradient-x, 50%) / 2 + var(--gradient-y, 50%) / 2)),
+            rgb(0 0 0 / 0) calc((var(--gradient-x, 50%) / 2 + var(--gradient-y, 50%) / 2) + 60%)
+        );
         --sparkle-rainbow-gradient: linear-gradient(to top left, #f9b3eb, #e2a6fc, #88a2f8, #a2f5a9 90%);
         --sparkles-image: url(/images/sparkles.webp);
         --sparkles-offset: calc(50% + var(--hover-tilt-x, 0) * 1.5px) calc(50% + var(--hover-tilt-y, 0) * 1.5px);
@@ -111,7 +127,7 @@
         background-image:
         var(--sparkle-rainbow-gradient),
         var(--h),
-        var(--hover-tilt-default-gradient);
+        var(--hover-tilt-custom-gradient);
         background-size: 120% 160%, cover;
         background-position: center, var(--sparkles-offset), center;
         background-repeat: no-repeat, repeat, no-repeat;
@@ -119,6 +135,7 @@
         mix-blend-mode: color-dodge;
         will-change: background-image, opacity;
         pointer-events: none;
+        
     }
 
     :global(.card) {

@@ -1369,7 +1369,28 @@ export const PROPERTIES: Property[] = [
             }
             return highlights;
         }
+    },
+    {
+        id: 54,
+        name: "bookends: 2",
+        desc: "the last 2 characters of the word are the first 2, reversed.",
+        icon: "📖",
+        probability: 0.67,
+        score: 83067,
 
+        applicable: (word: string) => {
+            if (word.length < 3) return false;
+            const a = word.substring(0, 2), b = word.substring(word.length - 2).split('').reverse().join('');
+            return a === b;
+        },
+
+        highlight: (word: string) => ({
+            [word[0]]: {},
+            [word[1]]: {},
+
+            [word[word.length - 1]]: {},
+            [word[word.length - 2]]: {}
+        })
     }
     
 ]
