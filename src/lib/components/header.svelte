@@ -1,23 +1,11 @@
 <script lang="ts">
-    import type { User } from "@supabase/supabase-js";
+    import { user, username, logout, guest } from '$lib/stores/auth';
     
-    let {
-        username,
-        user,
-        login,
-        logout,
-    }: {
-        username: string | null,
-        user: User | null;
-        login: () => void;
-        logout: () => void;
-    } = $props();
-
     let confirmingLogout = $state<boolean>(false);
 
     function onclick() {
-        if (!user) {
-            login();
+        if (!$user) {
+            guest.set(false);
             return;
         }
 
@@ -43,7 +31,7 @@
             {"[collection]"}  
         </a>
         <button class="h-username" onclick={onclick}>
-            <span class={`hu-user ${confirmingLogout && "hidden"}`}>{username ? `[${username}]` : "[log in]"}</span>
+            <span class={`hu-user ${confirmingLogout && "hidden"}`}>{$username ? `[${$username}]` : "[log in]"}</span>
             <span class={`hu-confirm ${confirmingLogout && "confirming"}`} >{"{logout}"}</span>
         </button>
     </div>

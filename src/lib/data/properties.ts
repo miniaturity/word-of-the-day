@@ -1391,6 +1391,23 @@ export const PROPERTIES: Property[] = [
             [word[word.length - 1]]: {},
             [word[word.length - 2]]: {}
         })
+    },
+    {
+        id: 55,
+        name: "trans",
+        desc: "contains the prefix 'trans'",
+        icon: "🏳️‍⚧️",
+        probability: 0.22,
+        score: 99999,
+
+        applicable: (word: string) => word.startsWith("trans"),
+        highlight: () => {
+            const highlights: Record<number, Highlight> = {};
+            for (let i = 0; i < 5; i++) {
+                highlights[i] = {};
+            }
+            return highlights;
+        }
     }
     
 ]

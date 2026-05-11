@@ -12,6 +12,7 @@
     import { getGenerationAvailable, getUsername, logout, saveWordResult } from "$lib/data/wordHistory";
     import Header from "$lib/components/header.svelte";
     import Wordcard from "$lib/components/wordcard.svelte";
+    import { user, username, loaded, guest } from "$lib/stores/auth";
 
     import { toBlob } from 'html-to-image';
 
@@ -42,11 +43,6 @@
     let generatedWord = $state<string>("");
     let generationIndex = $state<number>(0);
 
-    let loaded = $state<boolean>(false);
-    let user = $state<User | null>(null);
-    let guest = $state<boolean>(false);
-    
-    let username = $state<string | null>(null);
 
     let nextAllowedAt = $state<Date | null>(null);
 
@@ -76,39 +72,6 @@
         return `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
     });
 
-
-    supabase.auth.getUser().then(async ({ data }) => {
-        const authUser = data.user;
-        if (authUser) {
-            const { data: profile } = await supabase
-                .from("profiles")
-                .select("id")
-                .eq("id", authUser.id)
-                .single();
-
-            if (profile) {
-                user = authUser; 
-
-                const { allowed, nextTime } = await getGenerationAvailable(authUser.id);
-                
-                if (!allowed) nextAllowedAt = nextTime;
-
-                const u = await getUsername(authUser.id);
-
-                username = u;
-            }
-        }
-        loaded = true;
-    });
-
-    supabase.auth.onAuthStateChange((event, session) => {
-        if (event === "SIGNED_OUT") {
-            user = null;
-        } else if (event === "TOKEN_REFRESHED") {
-            user = session?.user ?? null;
-        }
-    });
-
     function randomizeBackdrop() {
         if (!word || !generating) return;
         backdropAnimating = true;
@@ -130,8 +93,8 @@
 
         checking = true; // prevent double requests (spam clicking)
 
-        if (user) {
-            const { allowed, nextTime } = await getGenerationAvailable(user.id);
+        if ($user) {
+            const { allowed, nextTime } = await getGenerationAvailable($user.id);
         
             if (!allowed) {
                 nextAllowedAt = nextTime;
@@ -197,31 +160,19 @@
     }
 
     $effect(() => {
-        if (user && propertiesGenerated) {
-            saveWordResult(user.id, word);
+        if ($user && propertiesGenerated) {
+            saveWordResult($user.id, word);
         }
     });
 
-    let checked = $state<boolean>(false);
         
-
     $effect(() => {
-        user;
-
-        const currentChecked = checked;
-        const currentUser = user;
-
-        if (currentUser && !currentChecked) {
-            (async () => { 
-                const { allowed, nextTime } = await getGenerationAvailable(currentUser.id)
-        
-            if (!allowed) {
-                nextAllowedAt = nextTime;
-                return;
-            }})();
+        const currentUser = $user;
+        if (currentUser) {
+            getGenerationAvailable(currentUser.id).then(({ allowed, nextTime }) => {
+                if (!allowed) nextAllowedAt = nextTime;
+            });
         }
-
-        checked = true;
     });
 
     // make the fonts available in html-to-image conversion
@@ -273,26 +224,14 @@
         }
     }
 
-
+    let pageReady = $derived($loaded && ($user !== null || $guest));
 </script>
 
-{#if loaded}
-    <Header 
-        username={username}
-        user={user}
-        login={() => { guest = false }}
-        logout={async () => {
-            await logout();
-            user = null;
-            guest = true;
-        }}
-    />
-{/if}
 
 {#if propertiesGenerated}
     <div class="share-card">
         <Wordcard 
-            user={username || "guest"}
+            user={$username || "guest"}
             word={word}
             date={new Date()}
             bind:ref={shareElement}
@@ -300,9 +239,7 @@
     </div>
 {/if}
 
-{#if !user && !guest && loaded}
-    <Login oncontinue={() => guest = true} oncomplete={(u) => user = u}/>
-{:else if loaded}
+{#if pageReady}
     <div class="page" style={`--score-rarity: ${RARITY_COLOR[word.getRarity() || "ordinary"][0]}`}>
 
         {#if !generated && !generating}

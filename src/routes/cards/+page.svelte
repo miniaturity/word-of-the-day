@@ -43,10 +43,6 @@
     
 </script>
 
-<button class="back" onclick={() => goto("/")}>
-    back
-</button>
-
 <div class="cards">
     <div class="card-grid">
         {#each wordhistory as card, i}
@@ -108,21 +104,6 @@
                 transition: all 0.3s ease-in-out;
             }
         }
-    }
-
-    @include backlight(".back");
-    .back {
-        position: absolute;
-        top: 12px;
-        right: 12px;
-
-        border: var(--border);
-        font-family: "GeistMono";
-        padding: 4px;
-        background: var(--bg-l);
-        cursor: pointer;
-        font-size: 1.5rem;
-
     }
 
     .card-grid {

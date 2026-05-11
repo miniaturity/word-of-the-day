@@ -41,11 +41,7 @@ function getProbability(rule: (word: string) => boolean): void {
     console.log("PROBABILITY: " + (success / entryCount * 100));
 }
 
-getProbability((word: string) => {
-            if (word.length < 3) return false;
-            const a = word.substring(0, 2), b = word.substring(word.length - 2).split('').reverse().join('');
-            return a === b;
-        });
+getProbability((word: string) => word.startsWith("trans"));
 
 function isPropertyName(name: string) {
     const pnames = PROPERTIES.map(p => p.name);

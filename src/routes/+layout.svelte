@@ -1,20 +1,39 @@
 <script lang="ts">
-	import favicon from '$lib/assets/favicon.svg';
+    import favicon from '$lib/assets/favicon.svg';
+    import { onMount } from 'svelte';
+    import { init, loaded, user, guest, continueAsGuest, onLoginComplete } from '$lib/stores/auth';
+    import Header from '$lib/components/header.svelte';
+    import Login from '$lib/components/login.svelte';
 
-	let { children } = $props();
-	
+    let { children } = $props();
+
+    onMount(() => {
+        init();
+    });
+
+    let showLogin = $derived($loaded && !$guest && !$user);
 </script>
 
 <svelte:head>
-	<link rel="icon" href={favicon} />
+    <link rel="icon" href={favicon} />
     <title>word of the day</title>
 </svelte:head>
 
+{#if $loaded}
+    <Header />
+
+    {#if showLogin}
+        <Login
+            oncontinue={() => continueAsGuest()}
+            oncomplete={(u) => onLoginComplete(u)}
+        />
+    {/if}
+{/if}
 
 {@render children()}
 
 <style lang="scss">
-	:global(:root) {
+    :global(:root) {
         --margin: clamp(4px, 2vw, 12px);
         --bg: #fffcf2;
         --bg-l: color-mix(in srgb, var(--bg), #fff 80%);
@@ -37,7 +56,7 @@
         }
     }
 
-	@font-face {
+    @font-face {
         font-family: "Geist";
         src: url("$lib/assets/fonts/Geist-Regular.ttf") format("truetype");
         font-weight: normal;
@@ -58,9 +77,7 @@
         font-style: normal;
     }
 
-	:global(*) {
+    :global(*) {
         box-sizing: border-box;
     }
-
-
 </style>
