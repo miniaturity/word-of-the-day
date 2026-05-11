@@ -34,6 +34,8 @@
 
 <style lang="scss">
     :global(:root) {
+        --header-height: 52px;
+
         --margin: clamp(4px, 2vw, 12px);
         --bg: #fffcf2;
         --bg-l: color-mix(in srgb, var(--bg), #fff 80%);

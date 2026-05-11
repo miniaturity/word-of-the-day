@@ -117,7 +117,7 @@
         width: 100vw;
         border-bottom: var(--border);
         font-size: 1.6rem;
-        height: fit-content;
+        height: var(--header-height);
 
 
         background-color: var(--bg-l);

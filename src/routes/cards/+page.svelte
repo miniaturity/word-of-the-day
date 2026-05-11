@@ -119,5 +119,6 @@
         flex-direction: row;
         gap: 12px;
         flex-grow: 1;
+        padding-top: var(--header-height);
     }
 </style>
