@@ -39,7 +39,8 @@ export async function saveWordResult(userId: string, word: Word): Promise<Proper
         .insert({
             user_id: userId,
             word: word.getWord(),
-            color: word.getColor()
+            color: word.getColor(),
+            score: word.getScore()
         })
     
     if (wordError) throw wordError;

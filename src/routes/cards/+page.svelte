@@ -1,6 +1,6 @@
 <script lang="ts">
     import { goto } from "$app/navigation";
-    import Wordcard from "$lib/components/wordcard.svelte";
+    import Wordcard from "$lib/components/card/wordcard.svelte";
     import { getUsername, getUserWords, type WordHistory } from "$lib/data/wordHistory";
     import { supabase } from "$lib/supabase";
     import { Word } from "$lib/types";

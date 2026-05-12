@@ -1,6 +1,6 @@
 <script lang="ts">
     import { tick } from "svelte";
-    import PropertyCard from "$lib/components/propertycard.svelte";
+    import PropertyCard from "$lib/components/card/propertycard.svelte";
     import type { Property } from "$lib/types";
     import { RARITY_COLOR, Word } from "$lib/types";
 
@@ -8,8 +8,9 @@
     import { cubicOut } from 'svelte/easing';
     import { user, username, loaded, guest } from "$lib/stores/auth";
     import { getGenerationAvailable, saveWordResult } from "$lib/data/wordHistory";
-    import Wordcard from "$lib/components/wordcard.svelte";
+    import Wordcard from "$lib/components/card/wordcard.svelte";
     import { toBlob } from 'html-to-image';
+    import Leaderboard from "$lib/components/ui/leaderboard.svelte";
 
     const WORD_GENERATE_TIME = 5000;
 
@@ -188,6 +189,8 @@
                     {nextAllowedAt === null ? `generate` : `${countdown || 'err'}`}
                 </button>
             </div>
+
+            <!-- <Leaderboard /> -->
         {/if}
 
         {#if generating || generated}

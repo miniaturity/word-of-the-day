@@ -2,8 +2,8 @@
     import favicon from '$lib/assets/favicon.svg';
     import { onMount } from 'svelte';
     import { init, loaded, user, guest, continueAsGuest, onLoginComplete } from '$lib/stores/auth';
-    import Header from '$lib/components/header.svelte';
-    import Login from '$lib/components/login.svelte';
+    import Header from '$lib/components/ui/header.svelte';
+    import Login from '$lib/components/ui/login.svelte';
 
     let { children } = $props();
 
