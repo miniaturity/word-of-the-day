@@ -34,6 +34,8 @@
 
 <style lang="scss">
     :global(:root) {
+        --w: 250px;
+        --ht: 350px;
         --header-height: 52px;
 
         --margin: clamp(4px, 2vw, 12px);

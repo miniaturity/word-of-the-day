@@ -3,7 +3,6 @@
     import type { WordCardData } from "$lib/data/fetchWord";
     import { onMount } from "svelte";
     import Wordcard from "../card/wordcard.svelte";
-    import { Word } from "$lib/types";
 
     let best = $state<WordCardData | null>(null);
 
@@ -37,5 +36,18 @@
 </div>
 
 <style lang="scss">
+    .leaderboard {
+        margin-top: calc(var(--margin) * 2);
+        padding: var(--margin);
+        border: var(--border);
+        background-color: var(--bg-l);
+        font-family: "Geist";
+    }
 
+    .lb-card {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        padding: 12px 0;
+    }
 </style>

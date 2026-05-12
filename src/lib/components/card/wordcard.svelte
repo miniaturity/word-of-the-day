@@ -223,11 +223,9 @@
     .word-card {
         --b: var(--bor, var(--border, 2px solid #000));
         --rarity-bg: color-mix(in srgb, var(--rar-col, red), #fff 70%);
-        --w: 250px;
-        --h: 350px;
 
         width: var(--w);
-        height: var(--h);
+        height: var(--ht);
         background-color: var(--bg-l);
         border: var(--b);
 

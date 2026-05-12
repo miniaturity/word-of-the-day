@@ -190,7 +190,9 @@
                 </button>
             </div>
 
-        <!-- <Leaderboard /> -->
+            <div class="lb">
+                <Leaderboard />
+            </div>
         {/if}
 
         {#if generating || generated}
@@ -297,6 +299,7 @@
         justify-content: center;
         overflow-x: hidden;
     }
+
 
     .roll {
         cursor: pointer;
