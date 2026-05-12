@@ -111,7 +111,8 @@
         flex-direction: row;
         gap: 12px;
         flex-grow: 1;
-
+        flex-wrap: wrap; 
+        align-content: flex-start;
     }
 
     .cards {

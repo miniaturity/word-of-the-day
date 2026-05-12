@@ -190,7 +190,7 @@
                 </button>
             </div>
 
-            <!-- <Leaderboard /> -->
+        <!-- <Leaderboard /> -->
         {/if}
 
         {#if generating || generated}
