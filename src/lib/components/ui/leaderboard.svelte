@@ -13,15 +13,15 @@
 
 <div class="leaderboard">
 
-    <div class="lb-card">
-        {#if best}
+    {#if best}
+        <div class="lb-card">
             <Wordcard 
                 word={best.word}
                 user={best.user}
                 date={best.date}
             />
-        {/if}
-    </div>
+        </div>
+    {/if}
     <div class="lb-desc">
         {#if best}
             <header class="lb-head">
